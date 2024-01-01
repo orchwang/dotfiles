@@ -1,0 +1,8 @@
+# brew "minikube"
+# brew "rclone"
+# brew "skopeo"
+brew "jq"
+# brew "teller"
+brew "wireshark"
+cask "wireshark-chmodbpf"
+# cask "insomnia"
