@@ -1,8 +1,8 @@
 [credential]
 	helper = store
 [user]
-	email = integrityms@gmail.com
-	name = locate
+	email = orchwang@gmail.com
+	name = Orc Hwang
 
 [includeIf "gitdir:~/mobon/admin/v1/"]
     path = ~/.git_company_account

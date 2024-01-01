@@ -10,6 +10,7 @@ brew "tmux"
 brew "git"
 brew "gitui"
 brew "git-delta"
+cask "iterm2"
 
 # programming
 cask "docker"
@@ -24,12 +25,14 @@ cask "slack"
 cask "visual-studio-code"
 cask "zoom"
 cask "notion"
+cask "bear"
 cask "1password"
 cask "1password-cli"
+cask "alfred"
 
 # fonts
 tap "homebrew/cask-fonts"
 cask "font-hack-nerd-font"
-cask "font-firo-nerd-font"
+cask "font-fira-code-nerd-font"
 cask "font-noto-sans-cjk"
 cask "font-noto-sans-cjk-kr"
