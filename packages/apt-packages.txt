@@ -1,0 +1,18 @@
+# Core
+zsh
+tmux
+git
+curl
+wget
+unzip
+build-essential
+
+# CLI tools
+fzf
+fd-find
+bat
+neovim
+
+# Zsh plugins
+zsh-autosuggestions
+zsh-syntax-highlighting

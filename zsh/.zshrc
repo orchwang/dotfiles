@@ -1,27 +1,42 @@
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# --- Platform detection ---
+if [[ "$(uname)" == "Darwin" ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+    alias ls='gls --color=auto'
+    eval "$(gdircolors ~/.dircolors)"
+    source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+else
+    alias ls='ls --color=auto'
+    eval "$(dircolors ~/.dircolors)"
+    [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+        source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+        source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # Ubuntu renames fd and bat
+    command -v fdfind > /dev/null && alias fd='fdfind'
+    command -v batcat > /dev/null && alias bat='batcat'
 fi
 
-export ZSH="$HOME/.oh-my-zsh"
+alias ll='ls -alF'
 
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# Starship
+export STARSHIP_CONFIG=~/.config/starship.toml
+export STARSHIP_CACHE=~/.starship/cache
 
-plugins=(
-  git
-  zsh-syntax-highlighting
-  zsh-autosuggestions
-  fzf
-  fasd
-  asdf
-)
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
 
-source $ZSH/oh-my-zsh.sh
+# Github
+# eval $(ssh-agent -s) ; ssh-add ~/.ssh/<your-key> > /dev/null
+# export GITHUB_TOKEN=<set-in-~/.zshrc.local>
 
-# ALIASES
-alias eval-github="eval $(ssh-agent -s) ; ssh-add ~/.ssh/orchwang-github"
+# uv
+# export UV_DEFAULT_INDEX=<set-in-~/.zshrc.local>
 
-# AWS
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Local overrides (secrets, machine-specific config)
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

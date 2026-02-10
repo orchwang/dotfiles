@@ -1,5 +1,11 @@
 # Terminal tools
 brew "zsh"
+brew "starship"
+brew "zoxide"
+brew "coreutils"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "fzf"
 brew "asdf"
 brew "curl"
 brew "fd"
@@ -10,7 +16,7 @@ brew "tmux"
 brew "git"
 brew "gitui"
 brew "git-delta"
-cask "iterm2"
+cask "ghostty"
 
 # programming
 cask "docker"
