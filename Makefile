@@ -112,6 +112,18 @@ link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim
 
 link-zshrc:
 	@echo "Linking .zshrc"
+	@if [ -f $(HOME)/.zshrc ] && [ ! -L $(HOME)/.zshrc ]; then \
+		echo "  Existing ~/.zshrc found (not a symlink). Backing up..."; \
+		cp $(HOME)/.zshrc $(HOME)/.zshrc.pre-dotfiles; \
+		echo "  Backup saved to ~/.zshrc.pre-dotfiles"; \
+		if [ ! -f $(HOME)/.zshrc.local ]; then \
+			echo "# Migrated from previous ~/.zshrc ($$(date +%Y-%m-%d))" > $(HOME)/.zshrc.local; \
+			cat $(HOME)/.zshrc >> $(HOME)/.zshrc.local; \
+			echo "  Migrated existing config to ~/.zshrc.local"; \
+		else \
+			echo "  ~/.zshrc.local already exists; review ~/.zshrc.pre-dotfiles to merge manually"; \
+		fi; \
+	fi
 	@ln -sf $(DOTFILES_DIR)/zsh/.zshrc $(HOME)/.zshrc
 
 link-starship:

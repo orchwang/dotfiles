@@ -19,6 +19,8 @@ else
     command -v batcat > /dev/null && alias bat='batcat'
 fi
 
+export PATH="$HOME/.local/bin:$PATH"
+
 alias ll='ls -alF'
 
 # Starship
