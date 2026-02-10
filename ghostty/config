@@ -1,0 +1,53 @@
+# =========================
+# Font
+# =========================
+font-family = Fira Code Nerd Font
+font-size = 14
+
+# 리가처 활성화 (Fira Code 핵심)
+font-feature = liga
+font-feature = calt
+
+# =========================
+# Window / Padding
+# =========================
+window-padding-x = 8
+window-padding-y = 8
+window-decoration = auto
+window-save-state = always
+
+# =========================
+# Cursor
+# =========================
+cursor-style = block
+cursor-style-blink = true
+
+# =========================
+# Scrolling
+# =========================
+scrollback-limit = 10000
+
+# =========================
+# Mouse / Selection
+# =========================
+mouse-hide-while-typing = true
+copy-on-select = false
+
+# =========================
+# Performance
+# =========================
+
+# =========================
+# Keybindings (선택)
+# =========================
+# Cmd + Enter → 전체화면
+keybind = cmd+shift+f=toggle_fullscreen
+
+# Cmd + K → 화면 정리 (clear: 스크롤백 포함)
+keybind = cmd+k=clear_screen
+
+# =========================
+# Shell
+# =========================
+# 기본 쉘을 명시하고 싶다면 (예: bash, zsh)
+# shell = /bin/zsh
