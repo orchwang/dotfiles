@@ -65,11 +65,12 @@ ifneq ($(OS),Darwin)
 	@if command -v nvim > /dev/null 2>&1 && nvim --version | head -1 | grep -qE 'v0\.(9|[1-9][0-9])'; then \
 		echo "Neovim >= 0.9 already installed"; \
 	else \
-		echo "Installing Neovim stable via AppImage..."; \
-		curl -Lo /tmp/nvim.appimage https://github.com/neovim/neovim/releases/download/stable/nvim.appimage; \
-		chmod +x /tmp/nvim.appimage; \
-		mkdir -p $(HOME)/.local/bin; \
-		mv /tmp/nvim.appimage $(HOME)/.local/bin/nvim; \
+		echo "Installing Neovim stable via tarball..."; \
+		curl -Lo /tmp/nvim-linux64.tar.gz https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz; \
+		tar -xzf /tmp/nvim-linux64.tar.gz -C /tmp; \
+		mkdir -p $(HOME)/.local; \
+		cp -r /tmp/nvim-linux64/* $(HOME)/.local/; \
+		rm -rf /tmp/nvim-linux64 /tmp/nvim-linux64.tar.gz; \
 		echo "Neovim installed to ~/.local/bin/nvim"; \
 	fi
 else
