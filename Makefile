@@ -10,7 +10,7 @@ ifeq ($(OS),Darwin)
 install: set-xcode set-brew set-packages link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 else
-install: set-apt-packages set-starship set-zoxide link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 endif
 
@@ -58,6 +58,22 @@ ifneq ($(OS),Darwin)
 	sudo apt install -y $$(cat $(DOTFILES_DIR)/packages/apt-packages.txt | grep -v '^#' | grep -v '^$$' | tr '\n' ' ')
 else
 	@echo "Skipping apt (not Linux)"
+endif
+
+set-neovim:
+ifneq ($(OS),Darwin)
+	@if command -v nvim > /dev/null 2>&1 && nvim --version | head -1 | grep -qE 'v0\.(9|[1-9][0-9])'; then \
+		echo "Neovim >= 0.9 already installed"; \
+	else \
+		echo "Installing Neovim stable via AppImage..."; \
+		curl -Lo /tmp/nvim.appimage https://github.com/neovim/neovim/releases/download/stable/nvim.appimage; \
+		chmod +x /tmp/nvim.appimage; \
+		mkdir -p $(HOME)/.local/bin; \
+		mv /tmp/nvim.appimage $(HOME)/.local/bin/nvim; \
+		echo "Neovim installed to ~/.local/bin/nvim"; \
+	fi
+else
+	@echo "On macOS, neovim is installed via brew"
 endif
 
 set-starship:
@@ -229,6 +245,6 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-others install-rust \
-        set-xcode set-brew set-packages set-apt-packages set-starship set-zoxide \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins clean unlink
