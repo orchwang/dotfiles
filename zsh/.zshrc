@@ -12,6 +12,8 @@ else
         source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
         source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # Ghostty terminal
+    [[ "$TERM_PROGRAM" == "ghostty" ]] && export TERM=xterm-256color
     # Ubuntu renames fd and bat
     command -v fdfind > /dev/null && alias fd='fdfind'
     command -v batcat > /dev/null && alias bat='batcat'
