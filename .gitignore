@@ -1,4 +1,10 @@
+# OS
 .DS_Store
+
+# Lock files
 Brewfile.lock.json
 Brewfile_others.lock.json
+
+# Secrets / local overrides
 .zshrc.local
+.claude/settings.local.json
