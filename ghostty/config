@@ -2,7 +2,7 @@
 # Font
 # =========================
 font-family = Fira Code Nerd Font
-font-size = 14
+font-size = 13
 
 # 리가처 활성화 (Fira Code 핵심)
 font-feature = liga
