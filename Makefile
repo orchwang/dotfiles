@@ -10,7 +10,7 @@ ifeq ($(OS),Darwin)
 install: set-xcode set-brew set-packages link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 endif
 
@@ -99,6 +99,28 @@ else
 	@echo "On macOS, zoxide is installed via brew"
 endif
 
+set-uv:
+ifneq ($(OS),Darwin)
+	@if command -v uv > /dev/null 2>&1; then \
+		echo "uv already installed"; \
+	else \
+		curl -LsSf https://astral.sh/uv/install.sh | sh; \
+	fi
+else
+	@echo "On macOS, uv is installed via brew"
+endif
+
+set-ruff:
+ifneq ($(OS),Darwin)
+	@if command -v ruff > /dev/null 2>&1; then \
+		echo "ruff already installed"; \
+	else \
+		$(HOME)/.local/bin/uv tool install ruff; \
+	fi
+else
+	@echo "On macOS, ruff is installed via brew"
+endif
+
 install-others:
 ifeq ($(OS),Darwin)
 	brew update
@@ -179,12 +201,17 @@ link-ghostty:
 # ============================================================
 
 set-default-shell:
-	@if [ "$$SHELL" = "$$(which zsh)" ]; then \
-		echo "zsh is already the default shell"; \
-	else \
-		echo "Setting zsh as default shell..."; \
-		chsh -s $$(which zsh); \
-	fi
+	@case "$$SHELL" in \
+		*/zsh) echo "zsh is already the default shell" ;; \
+		*) \
+			echo "Setting zsh as default shell..."; \
+			ZSH_PATH=$$(which zsh); \
+			if ! grep -qxF "$$ZSH_PATH" /etc/shells; then \
+				echo "$$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null; \
+			fi; \
+			chsh -s "$$ZSH_PATH"; \
+		;; \
+	esac
 
 # ============================================================
 # Plugin check (platform-aware)
@@ -201,7 +228,7 @@ check-plugins:
 		if [ ! -f "$$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide gls gdircolors; do \
+		for cmd in starship zoxide gls gdircolors uv ruff; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -212,7 +239,7 @@ check-plugins:
 		if [ ! -f "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide ls dircolors; do \
+		for cmd in starship zoxide ls dircolors uv ruff; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -246,6 +273,6 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-others install-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins clean unlink

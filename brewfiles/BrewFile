@@ -19,10 +19,11 @@ brew "git-delta"
 cask "ghostty"
 
 # programming
-cask "docker"
-cask "docker-compose"
+cask "docker-desktop"
 brew "node"
 brew "yarn"
+brew "uv"
+brew "ruff"
 
 # Applications
 brew "mas"
@@ -31,13 +32,11 @@ cask "slack"
 cask "visual-studio-code"
 cask "zoom"
 cask "notion"
-cask "bear"
 cask "1password"
 cask "1password-cli"
 cask "alfred"
 
 # fonts
-tap "homebrew/cask-fonts"
 cask "font-hack-nerd-font"
 cask "font-fira-code-nerd-font"
 cask "font-noto-sans-cjk"
