@@ -276,12 +276,15 @@ status:
 	done
 	@echo ""
 	@echo "=== Tool versions ==="
-	@for cmd in zsh nvim tmux starship zoxide uv ruff git node; do \
+	@for cmd in zsh nvim starship zoxide uv ruff git node; do \
 		if command -v $$cmd > /dev/null 2>&1; then \
 			ver=$$($$cmd --version 2>/dev/null | head -1); \
 			echo "  $$cmd: $$ver"; \
 		else echo "  $$cmd: not installed"; fi; \
 	done
+	@if command -v tmux > /dev/null 2>&1; then \
+		echo "  tmux: $$(tmux -V)"; \
+	else echo "  tmux: not installed"; fi
 
 update:
 	@echo "Pulling latest dotfiles..."
