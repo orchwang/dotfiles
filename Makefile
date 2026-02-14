@@ -252,6 +252,44 @@ check-plugins:
 	fi
 
 # ============================================================
+# Tmux management
+# ============================================================
+
+tmux-restart:
+	@tmux kill-server 2>/dev/null; echo "tmux server killed"
+	@echo "Run 'tmux' to start a new session"
+
+tmux-reload:
+	@tmux source-file ~/.tmux.conf 2>/dev/null && echo "tmux config reloaded" \
+		|| echo "No tmux session running. Start tmux first"
+
+# ============================================================
+# Status & update
+# ============================================================
+
+status:
+	@echo "=== Symlinks ==="
+	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.config/nvim ~/.config/ghostty/config; do \
+		if [ -L "$$f" ]; then echo "  OK: $$f -> $$(readlink $$f)"; \
+		elif [ -e "$$f" ]; then echo "  WARN: $$f (not a symlink)"; \
+		else echo "  MISSING: $$f"; fi; \
+	done
+	@echo ""
+	@echo "=== Tool versions ==="
+	@for cmd in zsh nvim tmux starship zoxide uv ruff git node; do \
+		if command -v $$cmd > /dev/null 2>&1; then \
+			ver=$$($$cmd --version 2>/dev/null | head -1); \
+			echo "  $$cmd: $$ver"; \
+		else echo "  $$cmd: not installed"; fi; \
+	done
+
+update:
+	@echo "Pulling latest dotfiles..."
+	@git -C $(DOTFILES_DIR) pull --rebase
+	@$(MAKE) link
+	@echo "Update complete."
+
+# ============================================================
 # Cleanup
 # ============================================================
 
@@ -275,4 +313,6 @@ unlink:
 .PHONY: install install-others install-rust \
         set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
-        set-default-shell check-plugins clean unlink
+        set-default-shell check-plugins \
+        tmux-restart tmux-reload status update \
+        clean unlink
