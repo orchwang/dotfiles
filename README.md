@@ -27,10 +27,10 @@ make install
 This works on both macOS and Ubuntu. The Makefile detects your OS automatically.
 
 ### macOS
-Installs Xcode CLI tools, Homebrew, and all packages from the Brewfile.
+Installs Xcode CLI tools, Homebrew, packages from the Brewfile, and the Rust toolchain.
 
 ### Ubuntu
-Installs packages via apt, then Starship and zoxide via their official install scripts.
+Installs packages via apt, then Starship, zoxide, uv, ruff, and the Rust toolchain via their official install scripts.
 
 ## Targets
 
@@ -42,7 +42,7 @@ Installs packages via apt, then Starship and zoxide via their official install s
 | `make set-apt-packages`  | --    | yes    | Install apt packages                 |
 | `make set-default-shell` | yes   | yes    | Set zsh as default shell             |
 | `make check-plugins`     | yes   | yes    | Verify plugins/tools are installed   |
-| `make install-rust`      | yes   | yes    | Install Rust toolchain               |
+| `make set-rust`          | yes   | yes    | Install Rust toolchain (rustup + rustfmt + clippy) |
 | `make clean`             | yes   | --     | Remove unlisted Homebrew packages    |
 | `make unlink`            | yes   | yes    | Remove all symlinks                  |
 

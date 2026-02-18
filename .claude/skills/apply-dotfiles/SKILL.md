@@ -30,7 +30,7 @@ uname -s
 | `make set-packages` | yes | -- | Install Homebrew packages from Brewfile |
 | `make set-apt-packages` | -- | yes | Install apt packages from apt-packages.txt |
 | `make check-plugins` | yes | yes | Verify all plugins/tools are installed |
-| `make install-rust` | yes | yes | Install Rust toolchain |
+| `make set-rust` | yes | yes | Install Rust toolchain (rustup + rustfmt + clippy) |
 | `make install-others` | yes | -- | Install extra Homebrew packages (BrewFile.others) |
 | `make clean` | yes | -- | Remove unlisted Homebrew packages |
 | `make unlink` | yes | yes | Remove all symlinks |
@@ -74,13 +74,13 @@ If `$ARGUMENTS` is provided, map it to the correct target:
 | `plugins` or `check` | `make check-plugins` |
 | `unlink` | `make unlink` |
 | `clean` | `make clean` |
-| `rust` | `make install-rust` |
+| `rust` | `make set-rust` |
 | `others` | `make install-others` |
 
 ## Important Notes
 
-- On macOS, `make install` runs: xcode-select, brew install, brew bundle, symlinks, default shell
-- On Linux, `make install` runs: apt packages, starship install, zoxide install, symlinks, default shell
+- On macOS, `make install` runs: xcode-select, brew install, brew bundle, rust toolchain, symlinks, default shell
+- On Linux, `make install` runs: apt packages, neovim, starship, zoxide, uv, ruff, rust toolchain, symlinks, default shell
 - The `iterm/` profile must be imported manually in iTerm2 preferences
 - Machine-specific secrets belong in `~/.zshrc.local` (git-ignored, sourced by `.zshrc`)
 - If `make check-plugins` reports missing tools, suggest running `make install` or the specific target
