@@ -7,10 +7,10 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages link set-default-shell
+install: set-xcode set-brew set-packages set-rust link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 endif
 
@@ -129,18 +129,13 @@ else
 	@echo "install-others: only available on macOS (uses Brewfile)"
 endif
 
-install-rust:
-ifeq ($(OS),Darwin)
-	brew update
-	brew bundle --file=$(DOTFILES_DIR)/brewfiles/BrewFile.rust
-	rustup-init
-else
+set-rust:
 	@if command -v rustup > /dev/null 2>&1; then \
 		echo "Rustup already installed"; \
 	else \
 		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
 	fi
-endif
+	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
 
 # ============================================================
 # Symlinks
@@ -228,7 +223,7 @@ check-plugins:
 		if [ ! -f "$$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide gls gdircolors uv ruff; do \
+		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -239,7 +234,7 @@ check-plugins:
 		if [ ! -f "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide ls dircolors uv ruff; do \
+		for cmd in starship zoxide ls dircolors uv ruff rustc cargo; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -313,7 +308,7 @@ unlink:
 	@rm -f $(HOME)/.config/nvim
 	@rm -f $(HOME)/.config/ghostty/config
 
-.PHONY: install install-others install-rust \
+.PHONY: install install-others set-rust \
         set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \

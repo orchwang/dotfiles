@@ -21,6 +21,9 @@ fi
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# Rust
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
 alias ll='ls -alF'
 
 # Starship
