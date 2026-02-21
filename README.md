@@ -37,6 +37,7 @@ Installs packages via apt, then Starship, zoxide, uv, ruff, and the Rust toolcha
 | Target                   | macOS | Ubuntu | Description                          |
 |--------------------------|-------|--------|--------------------------------------|
 | `make install`           | yes   | yes    | Full setup                           |
+| `make install-nvchad`    | yes   | yes    | Install NvChad + LSP/formatter deps only |
 | `make link`              | yes   | yes    | Create symlinks only                 |
 | `make set-packages`      | yes   | --     | Install Homebrew packages            |
 | `make set-apt-packages`  | --    | yes    | Install apt packages                 |

@@ -121,6 +121,22 @@ else
 	@echo "On macOS, ruff is installed via brew"
 endif
 
+set-nvchad-deps:
+ifeq ($(OS),Darwin)
+	@echo "Installing NvChad dependencies via Homebrew..."
+	@brew install neovim uv ruff
+else
+	@echo "set-nvchad-deps: on Linux, use set-neovim, set-uv, set-ruff"
+endif
+
+ifeq ($(OS),Darwin)
+install-nvchad: set-brew set-nvchad-deps set-rust link-nvim
+	@echo "NvChad installation complete."
+else
+install-nvchad: set-neovim set-uv set-ruff set-rust link-nvim
+	@echo "NvChad installation complete."
+endif
+
 install-others:
 ifeq ($(OS),Darwin)
 	brew update
@@ -308,8 +324,8 @@ unlink:
 	@rm -f $(HOME)/.config/nvim
 	@rm -f $(HOME)/.config/ghostty/config
 
-.PHONY: install install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff \
+.PHONY: install install-nvchad install-others set-rust \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
         tmux-restart tmux-reload status update \

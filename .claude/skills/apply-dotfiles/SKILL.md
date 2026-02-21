@@ -1,7 +1,7 @@
 ---
 name: apply-dotfiles
 description: Apply dotfiles to the current machine. Use when the user asks to "apply dotfiles", "install dotfiles", "set up dotfiles", "bootstrap environment", "link configs", "set up my machine", or "configure this system".
-argument-hint: "[target: install | link | packages | plugins | unlink | clean | rust | others]"
+argument-hint: "[target: install | nvchad | link | packages | plugins | unlink | clean | rust | others]"
 allowed-tools: Read, Bash(make *), Bash(uname *), Bash(brew *), Bash(apt *), Bash(which *), Bash(command -v *), Bash(ls *), Bash(cat /etc/*release*)
 ---
 
@@ -26,6 +26,7 @@ uname -s
 | Target | macOS | Linux | Description |
 |---|---|---|---|
 | `make install` | yes | yes | Full setup (packages + symlinks + default shell) |
+| `make install-nvchad` | yes | yes | Install NvChad + LSP/formatter deps only |
 | `make link` | yes | yes | Create all symlinks only |
 | `make set-packages` | yes | -- | Install Homebrew packages from Brewfile |
 | `make set-apt-packages` | -- | yes | Install apt packages from apt-packages.txt |
@@ -75,6 +76,7 @@ If `$ARGUMENTS` is provided, map it to the correct target:
 | `unlink` | `make unlink` |
 | `clean` | `make clean` |
 | `rust` | `make set-rust` |
+| `nvchad` | `make install-nvchad` |
 | `others` | `make install-others` |
 
 ## Important Notes
