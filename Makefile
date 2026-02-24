@@ -7,11 +7,13 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust link set-default-shell
+install: set-xcode set-brew set-packages set-rust set-catppuccin-tmux link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-catppuccin-tmux link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "If tmux is running, reload config: make tmux-reload"
 endif
 
 # ============================================================
@@ -266,6 +268,17 @@ check-plugins:
 # Tmux management
 # ============================================================
 
+set-catppuccin-tmux:
+	@if [ -d $(HOME)/.config/tmux/plugins/catppuccin/tmux ]; then \
+		echo "Catppuccin tmux already installed"; \
+	else \
+		mkdir -p $(HOME)/.config/tmux/plugins/catppuccin; \
+		git clone -b v2.1.3 https://github.com/catppuccin/tmux.git \
+			$(HOME)/.config/tmux/plugins/catppuccin/tmux; \
+		echo "Catppuccin tmux installed"; \
+		echo "  Reload tmux config to apply: make tmux-reload"; \
+	fi
+
 tmux-restart:
 	@tmux kill-server 2>/dev/null; echo "tmux server killed"
 	@echo "Run 'tmux' to start a new session"
@@ -328,5 +341,5 @@ unlink:
         set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
-        tmux-restart tmux-reload status update \
+        set-catppuccin-tmux tmux-restart tmux-reload status update \
         clean unlink
