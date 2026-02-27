@@ -11,6 +11,7 @@ build-essential
 fzf
 fd-find
 bat
+nyancat
 # neovim — apt version is too old for NvChad; installed via set-neovim target
 
 # Zsh plugins
