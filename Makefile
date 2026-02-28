@@ -7,11 +7,11 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust set-catppuccin-tmux link set-default-shell
+install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-catppuccin-tmux link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-tmux-plugins link set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -268,16 +268,19 @@ check-plugins:
 # Tmux management
 # ============================================================
 
-set-catppuccin-tmux:
-	@if [ -d $(HOME)/.config/tmux/plugins/catppuccin/tmux ]; then \
-		echo "Catppuccin tmux already installed"; \
+set-tmux-plugins:
+	@if [ -d $(HOME)/.config/tmux/plugins/tpm ]; then \
+		echo "TPM already installed"; \
 	else \
-		mkdir -p $(HOME)/.config/tmux/plugins/catppuccin; \
-		git clone -b v2.1.3 https://github.com/catppuccin/tmux.git \
-			$(HOME)/.config/tmux/plugins/catppuccin/tmux; \
-		echo "Catppuccin tmux installed"; \
-		echo "  Reload tmux config to apply: make tmux-reload"; \
+		mkdir -p $(HOME)/.config/tmux/plugins; \
+		git clone https://github.com/tmux-plugins/tpm \
+			$(HOME)/.config/tmux/plugins/tpm; \
+		echo "TPM installed"; \
 	fi
+	@ln -sf $(DOTFILES_DIR)/tmux/.tmux.conf $(HOME)/.tmux.conf
+	@tmux set-environment -g TMUX_PLUGIN_MANAGER_PATH $(HOME)/.config/tmux/plugins 2>/dev/null || \
+		tmux start-server \; set-environment -g TMUX_PLUGIN_MANAGER_PATH $(HOME)/.config/tmux/plugins
+	@$(HOME)/.config/tmux/plugins/tpm/bin/install_plugins
 
 tmux-restart:
 	@tmux kill-server 2>/dev/null; echo "tmux server killed"
@@ -341,5 +344,5 @@ unlink:
         set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
-        set-catppuccin-tmux tmux-restart tmux-reload status update \
+        set-tmux-plugins tmux-restart tmux-reload status update \
         clean unlink
