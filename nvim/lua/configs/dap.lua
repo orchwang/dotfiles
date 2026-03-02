@@ -213,14 +213,18 @@ local function setup_js_adapter()
 end
 
 local function disable_launchjson_loading()
-  local ok, vscode = pcall(require, "dap.ext.vscode")
-  if not ok then
-    return
+  -- Remove the provider so dap.continue() never tries to read launch.json.
+  if dap.providers and dap.providers.configs then
+    dap.providers.configs["dap.launch.json"] = nil
   end
 
-  vscode.load_launchjs = function()
-    notify("launch.json loading is disabled. Use .nvim/dap.lua or .nvim/dap.local.lua", vim.log.levels.WARN)
-    return {}
+  -- Also override load_launchjs for any manual/legacy callers.
+  local ok, vscode = pcall(require, "dap.ext.vscode")
+  if ok then
+    vscode.load_launchjs = function()
+      notify("launch.json loading is disabled. Use .nvim/dap.lua or .nvim/dap.local.lua", vim.log.levels.WARN)
+      return {}
+    end
   end
 end
 
@@ -383,5 +387,8 @@ setup_adapters()
 setup_js_adapter()
 disable_launchjson_loading()
 setup_base_configurations()
-setup_project_overlays()
 setup_project_overlay_autoload()
+
+-- Defer overlay loading so it runs after all plugins (e.g. mason-nvim-dap)
+-- have finished initializing and won't overwrite project configurations.
+vim.schedule(setup_project_overlays)
