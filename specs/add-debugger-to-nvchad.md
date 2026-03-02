@@ -25,6 +25,7 @@
 - 애플리케이션/스크립트 실행 단위 디버깅 (`program`, `module`, `attach`)
 - 프로젝트별 DAP 오버레이 로딩 (`<project>/.nvim/dap.lua`)
 - 개인 전용 프로젝트 오버라이드 (`<project>/.nvim/dap.local.lua`)
+- lazy-load 트리거 명시 (`cmd`, `keys`)로 DAP 명령 가시성 보장
 
 ### 제외
 
@@ -57,6 +58,10 @@
   - `jay-babu/mason-nvim-dap.nvim`
   - `mxsdev/nvim-dap-vscode-js`
 - 초기 설정은 `require("configs.dap")`로 위임해 파일 책임 분리
+- `nvim-dap` lazy-load 트리거를 명시:
+  - `cmd`: `DapContinue`, `DapToggleBreakpoint`, `DapStepOver`, `DapStepInto`, `DapStepOut`, `DapReloadProjectConfig`
+  - `keys`: `<F5>`, `<F9>`, `<F10>`, `<F11>`, `<F12>`, `<leader>dB`, `<leader>dl`, `<leader>dr`, `<leader>du`
+  - 원칙: 키맵 선언 소스를 단일화 (`plugins/init.lua`의 `keys` 또는 `configs/dap.lua` 중 한 곳만)
 
 ## 2) 공통 DAP 설정 작성 (`configs/dap.lua`)
 
@@ -126,7 +131,9 @@
 7. 프로젝트 루트에 `.nvim/dap.lua` 추가 후 custom launch 항목이 목록에 나타나는지 확인
 8. `.nvim/dap.local.lua`로 개인 설정이 append되는지 확인
 9. 프로젝트 외부 경로의 DAP 파일이 로드되지 않는지 확인
-10. 회귀: 기존 `hop`, `telescope`, NVChad 기본 키맵 충돌 여부 점검
+10. cold start 직후 `:DapReloadProjectConfig` 실행 시 `Not an editor command`가 발생하지 않는지 확인
+11. DAP 미로드 상태에서 `<F5>` 1회 입력으로 lazy-load + 실행이 되는지 확인
+12. 회귀: 기존 `hop`, `telescope`, NVChad 기본 키맵 충돌 여부 점검
 
 ---
 
@@ -156,9 +163,17 @@
 
 ---
 
+## Linux 운영 원칙 업데이트
+
+- Linux/Ubuntu는 Homebrew를 사용하지 않고 `apt + 공식 설치 스크립트` 경로를 기본값으로 유지한다.
+- Linux 설치/자동화 보강 상세 계획은 `specs/linux-no-brew-nvim-tools.md`를 기준으로 진행한다.
+
+---
+
 ## 의사결정 포인트
 
 - 키맵 위치: `mappings.lua` vs `configs/dap.lua`
+- DAP 로딩 전략: `lazy=false` 상시 로드 vs `cmd/keys` 기반 지연 로드
 - 프로젝트 루트 탐색 기준: `.git` 단일 기준 vs `package.json`/`pyproject.toml` 보조 기준
 - JS/TS 실행 전략: 런타임 직접 실행 vs 빌드 산출물 디버깅
 - Rust 실행 전략: 바이너리 선택 프롬프트 vs 고정 경로
@@ -175,5 +190,7 @@
 - 브레이크포인트/스텝/변수 확인이 5개 언어에서 재현된다.
 - 프로젝트별 `.nvim/dap.lua` 설정이 전역 설정 위에 정상 merge된다.
 - `.nvim/dap.local.lua`를 통해 개인 설정을 팀 설정과 분리해 유지할 수 있다.
+- cold start 상태에서도 `:DapReloadProjectConfig` 명령이 유효하다.
+- DAP 관련 키 입력이 lazy-load 트리거로 동작한다.
 - 설정이 `launch.json` 없이 Lua 표준(`dap.configurations`)만으로 유지된다.
 - `nvim/README.md`가 생성되고, NVChad 기본 사용법과 디버깅 가이드가 포함된다.

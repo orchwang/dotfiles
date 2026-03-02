@@ -99,27 +99,6 @@ local function setup_ui()
   end
 end
 
-local function setup_keymaps()
-  local map = vim.keymap.set
-
-  map("n", "<F5>", dap.continue, { desc = "DAP Continue/Start" })
-  map("n", "<F9>", dap.toggle_breakpoint, { desc = "DAP Toggle Breakpoint" })
-  map("n", "<F10>", dap.step_over, { desc = "DAP Step Over" })
-  map("n", "<F11>", dap.step_into, { desc = "DAP Step Into" })
-  map("n", "<F12>", dap.step_out, { desc = "DAP Step Out" })
-
-  map("n", "<leader>dB", function()
-    dap.set_breakpoint(vim.fn.input "Breakpoint condition: ")
-  end, { desc = "DAP Conditional Breakpoint" })
-
-  map("n", "<leader>dl", function()
-    dap.set_breakpoint(nil, nil, vim.fn.input "Log point message: ")
-  end, { desc = "DAP Log Point" })
-
-  map("n", "<leader>dr", dap.repl.open, { desc = "DAP REPL" })
-  map("n", "<leader>du", dapui.toggle, { desc = "DAP UI Toggle" })
-end
-
 local function setup_adapters()
   local debugpy_python = resolve_executable {
     vim.fn.stdpath "data" .. "/mason/packages/debugpy/venv/bin/python",
@@ -212,6 +191,18 @@ local function setup_js_adapter()
   end
 
   vscode.setup(setup_options)
+end
+
+local function disable_launchjson_loading()
+  local ok, vscode = pcall(require, "dap.ext.vscode")
+  if not ok then
+    return
+  end
+
+  vscode.load_launchjs = function()
+    notify("launch.json loading is disabled. Use .nvim/dap.lua or .nvim/dap.local.lua", vim.log.levels.WARN)
+    return {}
+  end
 end
 
 local function setup_base_configurations()
@@ -369,9 +360,9 @@ local function setup_project_overlay_autoload()
 end
 
 setup_ui()
-setup_keymaps()
 setup_adapters()
 setup_js_adapter()
+disable_launchjson_loading()
 setup_base_configurations()
 setup_project_overlays()
 setup_project_overlay_autoload()

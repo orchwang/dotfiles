@@ -16,7 +16,7 @@ return {
   {
     "jay-babu/mason-nvim-dap.nvim",
     dependencies = {
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
       "mfussenegger/nvim-dap",
     },
     opts = {
@@ -32,10 +32,42 @@ return {
 
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
+    cmd = {
+      "MasonToolsInstall",
+      "MasonToolsInstallSync",
+      "MasonToolsUpdate",
+      "MasonToolsUpdateSync",
+      "MasonToolsClean",
+    },
     opts = {
       ensure_installed = {
+        -- LSP
+        "html-lsp",
+        "css-lsp",
+        "pyright",
+        "ruff",
+        "rust-analyzer",
+        "gopls",
+        "typescript-language-server",
+
+        -- DAP
         "js-debug-adapter",
+
+        -- Linter
+        "eslint_d",
+
+        -- Formatter
+        "stylua",
+        "prettier",
+        "rustfmt",
+        "goimports",
+        "gofumpt",
+
+        -- DAP adapters/binaries (for nvim-dap configs)
+        "debugpy",
+        "delve",
+        "codelldb",
       },
       auto_update = false,
       run_on_start = true,
@@ -44,6 +76,79 @@ return {
 
   {
     "mfussenegger/nvim-dap",
+    cmd = {
+      "DapContinue",
+      "DapToggleBreakpoint",
+      "DapStepOver",
+      "DapStepInto",
+      "DapStepOut",
+      "DapReloadProjectConfig",
+    },
+    keys = {
+      {
+        "<F5>",
+        function()
+          require("dap").continue()
+        end,
+        desc = "DAP Continue/Start",
+      },
+      {
+        "<F9>",
+        function()
+          require("dap").toggle_breakpoint()
+        end,
+        desc = "DAP Toggle Breakpoint",
+      },
+      {
+        "<F10>",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "DAP Step Over",
+      },
+      {
+        "<F11>",
+        function()
+          require("dap").step_into()
+        end,
+        desc = "DAP Step Into",
+      },
+      {
+        "<F12>",
+        function()
+          require("dap").step_out()
+        end,
+        desc = "DAP Step Out",
+      },
+      {
+        "<leader>dB",
+        function()
+          require("dap").set_breakpoint(vim.fn.input "Breakpoint condition: ")
+        end,
+        desc = "DAP Conditional Breakpoint",
+      },
+      {
+        "<leader>dl",
+        function()
+          require("dap").set_breakpoint(nil, nil, vim.fn.input "Log point message: ")
+        end,
+        desc = "DAP Log Point",
+      },
+      {
+        "<leader>dr",
+        function()
+          require("dap").repl.open()
+        end,
+        desc = "DAP REPL",
+      },
+      {
+        "<leader>du",
+        function()
+          require("dapui").toggle()
+        end,
+        desc = "DAP UI Toggle",
+      },
+    },
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",

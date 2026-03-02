@@ -10,6 +10,8 @@
    - `:Mason` (LSP/DAP 도구 설치 상태)
    - `:checkhealth` (환경 점검)
 3. 키맵 변경/플러그인 변경 뒤에는 `:Lazy sync` 후 Neovim 재시작을 권장합니다.
+4. `make install`/`make install-nvchad`는 `set-nvim-tools` 단계에서 `MasonToolsInstallSync`를 실행해
+   필수 LSP/DAP/Linter/Formatter 도구를 기본 설치합니다.
 
 ## 2. 구성 구조
 
@@ -70,6 +72,17 @@ nvim/
 3. `:checkhealth`
 4. 정상 동작 확인 후 `lazy-lock.json` 커밋
 
+수동 재설치:
+- `make set-nvim-tools`
+- 또는 Neovim에서 `:MasonToolsInstallSync`
+
+### 4.1 Linux 설치 원칙 (No Brew)
+
+- Linux/Ubuntu는 Homebrew를 전제로 하지 않습니다.
+- 기본 경로는 `apt + 공식 설치 스크립트`이며, `make install` 또는 `make install-nvchad`로 동일하게 적용됩니다.
+- JS/TS 계열 Mason 도구를 위해 `nodejs`, `npm`이 Linux 기본 패키지에 포함됩니다.
+- `set-nvim-tools`는 `PATH`의 `nvim`이 없을 때 `~/.local/bin/nvim`을 fallback으로 사용합니다.
+
 ## 5. Debugging (nvim-dap)
 
 이 설정은 `launch.json`을 읽지 않고, Lua 기반 `dap.configurations`를 표준으로 사용합니다.
@@ -92,6 +105,11 @@ nvim/
 - Rust (`codelldb`)
 
 ### 5.3 기본 디버그 키맵
+
+로딩 방식:
+- DAP는 lazy-load이며 아래 키 입력 또는 DAP 명령 실행 시 로드됨
+- cold start에서도 `:DapReloadProjectConfig` 실행으로 플러그인 로드 + 명령 실행 가능
+- `launch.json` 로딩은 비활성화되어 있으며, 프로젝트 설정은 `.nvim/dap.lua`/`.nvim/dap.local.lua`만 사용
 
 - `<F5>`: 시작/계속
 - `<F9>`: 브레이크포인트 토글
@@ -190,6 +208,7 @@ Future Feature:
 ## 6. 트러블슈팅
 
 - JS/TS 디버깅이 안 열리면:
+  - `node --version`, `npm --version` 확인 (Linux 필수 런타임)
   - `:Mason`에서 `js-debug-adapter` 설치 여부 확인
   - 필요 시 `:MasonInstall js-debug-adapter`
 - Python 디버깅이 안 열리면:

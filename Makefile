@@ -7,11 +7,11 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-default-shell
+install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-tmux-plugins link set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-tmux-plugins link set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -67,12 +67,18 @@ ifneq ($(OS),Darwin)
 	@if command -v nvim > /dev/null 2>&1 && nvim --version | head -1 | grep -qE 'v0\.(9|[1-9][0-9])'; then \
 		echo "Neovim >= 0.9 already installed"; \
 	else \
-		echo "Installing Neovim stable via tarball..."; \
-		curl -Lo /tmp/nvim-linux-x86_64.tar.gz https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz; \
-		tar -xzf /tmp/nvim-linux-x86_64.tar.gz -C /tmp; \
+		ARCH=$$(uname -m); \
+		case "$$ARCH" in \
+			x86_64|amd64) NVIM_TARBALL="nvim-linux-x86_64.tar.gz"; NVIM_DIR="nvim-linux-x86_64" ;; \
+			aarch64|arm64) NVIM_TARBALL="nvim-linux-arm64.tar.gz"; NVIM_DIR="nvim-linux-arm64" ;; \
+			*) echo "Unsupported Linux architecture: $$ARCH"; exit 1 ;; \
+		esac; \
+		echo "Installing Neovim stable via tarball ($$NVIM_TARBALL)..."; \
+		curl -fLo /tmp/$$NVIM_TARBALL https://github.com/neovim/neovim/releases/download/stable/$$NVIM_TARBALL; \
+		tar -xzf /tmp/$$NVIM_TARBALL -C /tmp; \
 		mkdir -p $(HOME)/.local; \
-		cp -r /tmp/nvim-linux-x86_64/* $(HOME)/.local/; \
-		rm -rf /tmp/nvim-linux-x86_64 /tmp/nvim-linux-x86_64.tar.gz; \
+		cp -r /tmp/$$NVIM_DIR/* $(HOME)/.local/; \
+		rm -rf /tmp/$$NVIM_DIR /tmp/$$NVIM_TARBALL; \
 		echo "Neovim installed to ~/.local/bin/nvim"; \
 	fi
 else
@@ -132,10 +138,10 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-install-nvchad: set-brew set-nvchad-deps set-rust link-nvim
+install-nvchad: set-brew set-nvchad-deps set-rust link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 else
-install-nvchad: set-neovim set-uv set-ruff set-rust link-nvim
+install-nvchad: set-neovim set-uv set-ruff set-rust link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 endif
 
@@ -154,6 +160,19 @@ set-rust:
 		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
 	fi
 	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
+
+set-nvim-tools:
+	@NVIM_BIN="$$(command -v nvim || true)"; \
+	if [ -z "$$NVIM_BIN" ] && [ -x "$(HOME)/.local/bin/nvim" ]; then \
+		NVIM_BIN="$(HOME)/.local/bin/nvim"; \
+	fi; \
+	if [ -n "$$NVIM_BIN" ]; then \
+		echo "Installing Neovim plugins and Mason tools (headless) with $$NVIM_BIN..."; \
+		"$$NVIM_BIN" --headless "+MasonToolsInstallSync" "+qa"; \
+	else \
+		echo "Failed to install Neovim tools: nvim not found in PATH or ~/.local/bin/nvim."; \
+		exit 1; \
+	fi
 
 # ============================================================
 # Symlinks
@@ -341,7 +360,7 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
