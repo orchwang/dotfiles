@@ -18,8 +18,7 @@ nyancat
 nodejs
 npm
 
-# Runtime for Mason Go tools (gopls/goimports/gofumpt/delve)
-golang-go
+# Go runtime — apt version is too old; installed via set-golang target
 
 # Zsh plugins
 zsh-autosuggestions

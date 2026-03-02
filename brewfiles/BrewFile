@@ -21,6 +21,7 @@ cask "ghostty"
 
 # programming
 cask "docker-desktop"
+brew "go"
 brew "node"
 brew "yarn"
 brew "uv"

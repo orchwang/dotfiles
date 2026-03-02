@@ -21,6 +21,9 @@ fi
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# Go (Linux tarball install)
+[ -d "$HOME/.local/go/bin" ] && export PATH="$HOME/.local/go/bin:$PATH"
+
 # Rust
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 

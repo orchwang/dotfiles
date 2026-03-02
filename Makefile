@@ -11,7 +11,7 @@ install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-nvim
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-rust set-tmux-plugins link set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -129,10 +129,35 @@ else
 	@echo "On macOS, ruff is installed via brew"
 endif
 
+set-golang:
+ifneq ($(OS),Darwin)
+	@if [ -x "$(HOME)/.local/go/bin/go" ]; then \
+		echo "Go already installed: $$($(HOME)/.local/go/bin/go version)"; \
+	else \
+		echo "Installing latest Go from go.dev..."; \
+		GO_VERSION=$$(curl -sL https://go.dev/VERSION?m=text | head -1); \
+		ARCH=$$(uname -m); \
+		case "$$ARCH" in \
+			x86_64|amd64) GO_ARCH="amd64" ;; \
+			aarch64|arm64) GO_ARCH="arm64" ;; \
+			*) echo "Unsupported architecture: $$ARCH"; exit 1 ;; \
+		esac; \
+		curl -fLo /tmp/$$GO_VERSION.linux-$$GO_ARCH.tar.gz \
+			https://go.dev/dl/$$GO_VERSION.linux-$$GO_ARCH.tar.gz; \
+		mkdir -p $(HOME)/.local; \
+		rm -rf $(HOME)/.local/go; \
+		tar -C $(HOME)/.local -xzf /tmp/$$GO_VERSION.linux-$$GO_ARCH.tar.gz; \
+		rm -f /tmp/$$GO_VERSION.linux-$$GO_ARCH.tar.gz; \
+		echo "$$GO_VERSION installed to ~/.local/go"; \
+	fi
+else
+	@echo "On macOS, go is installed via brew"
+endif
+
 set-nvchad-deps:
 ifeq ($(OS),Darwin)
 	@echo "Installing NvChad dependencies via Homebrew..."
-	@brew install neovim uv ruff
+	@brew install neovim uv ruff go
 else
 	@echo "set-nvchad-deps: on Linux, use set-neovim, set-uv, set-ruff"
 endif
@@ -141,7 +166,7 @@ ifeq ($(OS),Darwin)
 install-nvchad: set-brew set-nvchad-deps set-rust link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 else
-install-nvchad: set-neovim set-uv set-ruff set-rust link-nvim set-nvim-tools
+install-nvchad: set-neovim set-uv set-ruff set-golang set-rust link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 endif
 
@@ -360,7 +385,7 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-nvchad-deps set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
