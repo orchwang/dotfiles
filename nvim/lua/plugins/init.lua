@@ -43,7 +43,7 @@ return {
         "html-lsp",
         "css-lsp",
         "pyright",
-        "ruff",
+        -- ruff LSP is provided by system ruff (uv on Linux, Homebrew on macOS).
         "rust-analyzer",
         { "gopls", condition = function()
           return vim.fn.executable "go" == 1
