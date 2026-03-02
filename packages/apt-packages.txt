@@ -18,6 +18,9 @@ nyancat
 nodejs
 npm
 
+# Python venv — required by Mason for Python-based packages (debugpy etc.)
+python3-venv
+
 # Go runtime — apt version is too old; installed via set-golang target
 
 # Zsh plugins
