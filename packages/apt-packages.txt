@@ -12,6 +12,7 @@ fzf
 fd-find
 bat
 nyancat
+btop
 # neovim — apt version is too old for NvChad; installed via set-neovim target
 
 # Runtime for Mason JS/TS tools (lsp/dap/linter/formatter)

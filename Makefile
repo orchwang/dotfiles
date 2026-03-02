@@ -11,7 +11,7 @@ install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-nvim
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -83,6 +83,32 @@ ifneq ($(OS),Darwin)
 	fi
 else
 	@echo "On macOS, neovim is installed via brew"
+endif
+
+set-lazygit:
+ifneq ($(OS),Darwin)
+	@if command -v lazygit > /dev/null 2>&1; then \
+		echo "lazygit already installed"; \
+	else \
+		echo "Installing lazygit from GitHub releases..."; \
+		LAZYGIT_VERSION=$$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" \
+			| grep -Po '"tag_name": "v\K[^"]*'); \
+		ARCH=$$(uname -m); \
+		case "$$ARCH" in \
+			x86_64|amd64) LG_ARCH="x86_64" ;; \
+			aarch64|arm64) LG_ARCH="arm64" ;; \
+			*) echo "Unsupported architecture: $$ARCH"; exit 1 ;; \
+		esac; \
+		curl -fLo /tmp/lazygit.tar.gz \
+			"https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_$${LAZYGIT_VERSION}_Linux_$${LG_ARCH}.tar.gz"; \
+		tar -xzf /tmp/lazygit.tar.gz -C /tmp lazygit; \
+		mkdir -p $(HOME)/.local/bin; \
+		install /tmp/lazygit $(HOME)/.local/bin/lazygit; \
+		rm -f /tmp/lazygit /tmp/lazygit.tar.gz; \
+		echo "lazygit installed to ~/.local/bin/lazygit"; \
+	fi
+else
+	@echo "On macOS, lazygit is installed via brew"
 endif
 
 set-starship:
@@ -385,7 +411,7 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \

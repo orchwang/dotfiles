@@ -17,6 +17,8 @@ brew "git"
 brew "gitui"
 brew "git-delta"
 brew "nyancat"
+brew "lazygit"
+brew "btop"
 cask "ghostty"
 
 # programming
