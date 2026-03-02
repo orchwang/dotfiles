@@ -100,17 +100,36 @@ local function setup_ui()
 end
 
 local function setup_adapters()
-  local debugpy_python = resolve_executable {
-    vim.fn.stdpath "data" .. "/mason/packages/debugpy/venv/bin/python",
-    "python3",
-    "python",
-  }
+  local uv_cmd = find_executable { "uv" }
 
-  dap.adapters.python = {
-    type = "executable",
-    command = debugpy_python,
-    args = { "-m", "debugpy.adapter" },
-  }
+  if uv_cmd then
+    dap.adapters.python = {
+      type = "executable",
+      command = uv_cmd,
+      args = {
+        "run",
+        "--with",
+        "debugpy",
+        "python",
+        "-m",
+        "debugpy.adapter",
+      },
+    }
+  else
+    local debugpy_python = resolve_executable {
+      vim.fn.stdpath "data" .. "/mason/packages/debugpy/venv/bin/python",
+      "python3",
+      "python",
+    }
+
+    dap.adapters.python = {
+      type = "executable",
+      command = debugpy_python,
+      args = { "-m", "debugpy.adapter" },
+    }
+
+    notify("uv not found; falling back to python -m debugpy.adapter", vim.log.levels.WARN)
+  end
 
   local delve = resolve_executable {
     vim.fn.stdpath "data" .. "/mason/bin/dlv",

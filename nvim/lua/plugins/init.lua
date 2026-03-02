@@ -68,7 +68,7 @@ return {
         end },
 
         -- DAP adapters/binaries (for nvim-dap configs)
-        "debugpy",
+        -- Python debug adapter is provided via uv on-demand (not Mason).
         { "delve", condition = function()
           return vim.fn.executable "go" == 1
         end },
