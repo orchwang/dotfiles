@@ -81,6 +81,7 @@ nvim/
 - Linux/Ubuntu는 Homebrew를 전제로 하지 않습니다.
 - 기본 경로는 `apt + 공식 설치 스크립트`이며, `make install` 또는 `make install-nvchad`로 동일하게 적용됩니다.
 - JS/TS 계열 Mason 도구를 위해 `nodejs`, `npm`이 Linux 기본 패키지에 포함됩니다.
+- Go 계열 Mason 도구(`gopls`, `goimports`, `gofumpt`, `delve`)를 위해 `golang-go`가 Linux 기본 패키지에 포함됩니다.
 - `set-nvim-tools`는 `PATH`의 `nvim`이 없을 때 `~/.local/bin/nvim`을 fallback으로 사용합니다.
 
 ## 5. Debugging (nvim-dap)
@@ -215,3 +216,7 @@ Future Feature:
   - `:Mason`에서 `debugpy` 설치 여부 확인
 - Go/Rust 디버깅이 안 열리면:
   - `dlv`, `codelldb` 설치 여부 확인 (`:Mason`)
+- `delve: installing`에서 오래 멈추면:
+  - `go version` 확인 (`go`가 없으면 Go 계열 Mason 설치는 skip되거나 실패할 수 있음)
+  - 로그 확인: `~/.local/state/nvim/mason.log`
+  - 단독 재시도: `:MasonInstall delve`

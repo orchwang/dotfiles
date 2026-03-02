@@ -18,6 +18,9 @@ nyancat
 nodejs
 npm
 
+# Runtime for Mason Go tools (gopls/goimports/gofumpt/delve)
+golang-go
+
 # Zsh plugins
 zsh-autosuggestions
 zsh-syntax-highlighting

@@ -20,12 +20,9 @@ return {
       "mfussenegger/nvim-dap",
     },
     opts = {
-      ensure_installed = {
-        "python",
-        "delve",
-        "codelldb",
-      },
-      automatic_installation = true,
+      -- Installation is centralized in mason-tool-installer to avoid race conditions.
+      ensure_installed = {},
+      automatic_installation = false,
       handlers = {},
     },
   },
@@ -48,7 +45,9 @@ return {
         "pyright",
         "ruff",
         "rust-analyzer",
-        "gopls",
+        { "gopls", condition = function()
+          return vim.fn.executable "go" == 1
+        end },
         "typescript-language-server",
 
         -- DAP
@@ -61,16 +60,29 @@ return {
         "stylua",
         "prettier",
         "rustfmt",
-        "goimports",
-        "gofumpt",
+        { "goimports", condition = function()
+          return vim.fn.executable "go" == 1
+        end },
+        { "gofumpt", condition = function()
+          return vim.fn.executable "go" == 1
+        end },
 
         -- DAP adapters/binaries (for nvim-dap configs)
         "debugpy",
-        "delve",
+        { "delve", condition = function()
+          return vim.fn.executable "go" == 1
+        end },
         "codelldb",
       },
       auto_update = false,
-      run_on_start = true,
+      -- make set-nvim-tools runs :MasonToolsInstallSync in headless mode.
+      -- Keep startup auto-install disabled to prevent duplicate install jobs.
+      run_on_start = false,
+      integrations = {
+        ["mason-lspconfig"] = true,
+        ["mason-null-ls"] = true,
+        ["mason-nvim-dap"] = false,
+      },
     },
   },
 
