@@ -181,6 +181,41 @@ return {
   },
 
   {
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = { "markdown", "markdown_inline" },
+    },
+  },
+
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    ft = { "markdown" },
+    opts = {},
+  },
+
+  {
+    "3rd/image.nvim",
+    ft = { "markdown" },
+    opts = {
+      backend = "kitty",
+      processor = "magick_cli",
+      tmux_show_only_in_active_window = true,
+    },
+  },
+
+  {
+    "3rd/diagram.nvim",
+    dependencies = { "3rd/image.nvim" },
+    ft = { "markdown" },
+    opts = {
+      renderer_options = {
+        mermaid = { theme = "dark" },
+      },
+    },
+  },
+
+  {
     "nvim-tree/nvim-tree.lua",
     opts = {
       filters = {
