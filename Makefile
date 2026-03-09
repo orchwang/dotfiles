@@ -7,11 +7,11 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -212,6 +212,14 @@ set-rust:
 	fi
 	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
 
+set-mermaid-cli:
+	@if command -v mmdc > /dev/null 2>&1; then \
+		echo "mermaid-cli already installed"; \
+	else \
+		echo "Installing @mermaid-js/mermaid-cli..."; \
+		npm install -g @mermaid-js/mermaid-cli; \
+	fi
+
 set-nvim-tools:
 	@NVIM_BIN="$$(command -v nvim || true)"; \
 	if [ -z "$$NVIM_BIN" ] && [ -x "$(HOME)/.local/bin/nvim" ]; then \
@@ -411,7 +419,7 @@ unlink:
 	@rm -f $(HOME)/.config/ghostty/config
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-mermaid-cli set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \

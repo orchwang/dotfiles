@@ -21,6 +21,9 @@ brew "lazygit"
 brew "btop"
 cask "ghostty"
 
+# Neovim image/diagram support
+brew "imagemagick"
+
 # programming
 cask "docker-desktop"
 brew "go"

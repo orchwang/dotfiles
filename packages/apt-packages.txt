@@ -19,6 +19,9 @@ btop
 nodejs
 npm
 
+# Neovim image/diagram support
+imagemagick
+
 # Python venv — required by Mason for Python-based packages (debugpy etc.)
 python3-venv
 
