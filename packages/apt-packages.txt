@@ -21,6 +21,9 @@ npm
 
 # Neovim image/diagram support
 imagemagick
+luarocks
+lua5.1
+liblua5.1-0-dev
 
 # Python venv — required by Mason for Python-based packages (debugpy etc.)
 python3-venv
