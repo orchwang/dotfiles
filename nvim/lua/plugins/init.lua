@@ -216,6 +216,20 @@ return {
   },
 
   {
+    "linux-cultist/venv-selector.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    ft = "python",
+    keys = { { "<leader>cv", "<cmd>VenvSelect<cr>", desc = "Select Python venv" } },
+    opts = {
+      options = {
+        notify_user_on_venv_activation = true,
+        enable_cached_venvs = true,
+        cached_venv_automatic_activation = true,
+      },
+    },
+  },
+
+  {
     "nvim-tree/nvim-tree.lua",
     opts = {
       filters = {
