@@ -8,6 +8,7 @@ local servers = {
   "rust_analyzer",
   "gopls",
   "ts_ls",
+  "marksman",
 }
 vim.lsp.enable(servers)
 

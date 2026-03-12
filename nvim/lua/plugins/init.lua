@@ -49,6 +49,7 @@ return {
           return vim.fn.executable "go" == 1
         end },
         "typescript-language-server",
+        "marksman",
 
         -- DAP
         "js-debug-adapter",

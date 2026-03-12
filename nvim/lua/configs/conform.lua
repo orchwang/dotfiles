@@ -9,6 +9,7 @@ local options = {
     go = { "goimports", "gofumpt" },
     json = { "prettier" },
     rust = { "rustfmt" },
+    markdown = { "prettier" },
   },
 
   format_on_save = {
