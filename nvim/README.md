@@ -53,20 +53,73 @@ nvim/
 - `;` -> `:`
 - insert 모드 `jk` -> `<ESC>`
 - `s`, `S`, `gw`: `hop.nvim` 기반 이동
+- `<leader>cv`: Python 가상환경 선택 (`venv-selector.nvim`)
 
 커스터마이징 원칙:
 - 플러그인 추가/변경: `lua/plugins/init.lua`
 - 플러그인 상세 동작: `lua/configs/<plugin>.lua`
 - 전역 키맵: `lua/mappings.lua`
 
-## 4. Plugin / Tooling 관리
+## 4. LSP / Formatter 설정
+
+### 4.1 LSP 서버
+
+정의 위치: `lua/configs/lspconfig.lua`
+
+| 언어 | LSP 서버 | 설치 방식 |
+|------|----------|-----------|
+| HTML | `html` | Mason |
+| CSS | `cssls` | Mason |
+| Python | `pyright` | Mason |
+| Python (lint) | `ruff` | 시스템 (Homebrew / uv) |
+| Rust | `rust_analyzer` | Mason |
+| Go | `gopls` | Mason (Go 설치 시) |
+| JS/TS | `ts_ls` | Mason |
+| Markdown | `marksman` | Mason |
+
+### 4.2 포매터 (format-on-save)
+
+정의 위치: `lua/configs/conform.lua`
+
+| 언어 | 포매터 |
+|------|--------|
+| Lua | `stylua` |
+| Python | `ruff_format` |
+| JS/JSX/TS/TSX | `prettier` |
+| JSON | `prettier` |
+| Markdown | `prettier` |
+| Go | `goimports` + `gofumpt` |
+| Rust | `rustfmt` |
+
+저장 시 자동 포맷(`format_on_save`)이 활성화되어 있으며, 타임아웃은 500ms입니다.
+
+## 5. Plugin / Tooling 관리
 
 - 플러그인 매니저: `lazy.nvim`
 - 버전 고정: `lazy-lock.json`
-- 포매팅: `conform.nvim` (`lua/configs/conform.lua`)
-- LSP: `nvim-lspconfig` (`lua/configs/lspconfig.lua`)
+- 도구 설치: `mason-tool-installer.nvim` (`run_on_start = false`, headless 모드 전용)
 
-업데이트 시 권장 절차:
+### 5.1 추가 플러그인
+
+| 플러그인 | 용도 | 로딩 조건 |
+|----------|------|-----------|
+| `hop.nvim` | 빠른 커서 이동 | 항시 |
+| `venv-selector.nvim` | Python venv 선택 (Telescope 피커) | `ft = python` / `<leader>cv` |
+| `render-markdown.nvim` | Markdown 리치 프리뷰 | `ft = markdown` |
+| `image.nvim` | 이미지 인라인 렌더링 (Kitty backend) | `ft = markdown` |
+| `diagram.nvim` | Mermaid 다이어그램 인라인 렌더링 | `ft = markdown` |
+
+### 5.2 Telescope 커스텀 설정
+
+- `find_files`: 숨김 파일 포함, `.gitignore` 무시 (`no_ignore = true`, `hidden = true`)
+- `live_grep`: 숨김 파일 포함, `.gitignore` 무시 (`--no-ignore-vcs`, `--hidden`)
+
+### 5.3 nvim-tree 커스텀 설정
+
+- `.gitignore`에 포함된 파일도 표시 (`git_ignored = false`)
+
+### 5.4 업데이트 절차
+
 1. `:Lazy sync`
 2. `:Mason`에서 필요한 도구 설치 확인
 3. `:checkhealth`
@@ -76,7 +129,7 @@ nvim/
 - `make set-nvim-tools`
 - 또는 Neovim에서 `:MasonToolsInstallSync`
 
-### 4.1 Linux 설치 원칙 (No Brew)
+### 5.5 Linux 설치 원칙 (No Brew)
 
 - Linux/Ubuntu는 Homebrew를 전제로 하지 않습니다.
 - 기본 경로는 `apt + 공식 설치 스크립트`이며, `make install` 또는 `make install-nvchad`로 동일하게 적용됩니다.
@@ -85,11 +138,21 @@ nvim/
 - Python DAP adapter(`debugpy.adapter`)는 `uv`로 온디맨드 실행됩니다.
 - `set-nvim-tools`는 `PATH`의 `nvim`이 없을 때 `~/.local/bin/nvim`을 fallback으로 사용합니다.
 
-## 5. Debugging (nvim-dap)
+## 6. Python 개발 환경
+
+- LSP: `pyright` (타입 검사) + `ruff` (린팅)
+- 포매터: `ruff_format` (format-on-save)
+- 디버거: `debugpy` (`uv run --with debugpy` 우선, Mason fallback)
+- 가상환경: `venv-selector.nvim`으로 `.venv` 선택
+  - 프로젝트 루트의 `.venv/`는 Pyright가 자동 감지
+  - `<leader>cv`로 수동 선택 가능
+  - 선택한 venv는 프로젝트별 캐시 및 자동 복원
+
+## 7. Debugging (nvim-dap)
 
 이 설정은 `launch.json`을 읽지 않고, Lua 기반 `dap.configurations`를 표준으로 사용합니다.
 
-### 5.1 Debugging 스택
+### 7.1 Debugging 스택
 
 - `mfussenegger/nvim-dap`
 - `rcarriga/nvim-dap-ui`
@@ -98,7 +161,7 @@ nvim/
 - `mxsdev/nvim-dap-vscode-js`
 - `WhoIsSethDaniel/mason-tool-installer.nvim` (`js-debug-adapter` 설치용)
 
-### 5.2 지원 언어
+### 7.2 지원 언어
 
 - Python (`debugpy`)
 - JavaScript (`pwa-node`, `js-debug-adapter`)
@@ -106,7 +169,7 @@ nvim/
 - Go (`delve`)
 - Rust (`codelldb`)
 
-### 5.3 기본 디버그 키맵
+### 7.3 기본 디버그 키맵
 
 로딩 방식:
 - DAP는 lazy-load이며 아래 키 입력 또는 DAP 명령 실행 시 로드됨
@@ -127,7 +190,7 @@ nvim/
 - 디버그 시작 시 `dap-ui` 자동 open
 - 디버그 종료/exit 시 `dap-ui` 자동 close
 
-### 5.4 언어별 기본 Launch 구성
+### 7.4 언어별 기본 Launch 구성
 
 정의 위치: `lua/configs/dap.lua`
 
@@ -143,7 +206,7 @@ nvim/
 - Rust
   - 실행 바이너리 경로 입력 후 launch
 
-### 5.5 프로젝트별 DAP 설정
+### 7.5 프로젝트별 DAP 설정
 
 프로젝트 루트(`.git` 기준)에서 아래 파일을 자동 로드합니다.
 
@@ -191,7 +254,7 @@ return {
 }
 ```
 
-### 5.6 Debugging 검증 체크리스트
+### 7.6 Debugging 검증 체크리스트
 
 1. 대상 파일에서 브레이크포인트(`F9`) 설정
 2. `F5`로 디버그 시작
@@ -199,7 +262,7 @@ return {
 4. `F10/F11/F12` step 동작 확인
 5. 종료 시 `dap-ui` 자동 닫힘 확인
 
-### 5.7 현재 범위와 Future Feature
+### 7.7 현재 범위와 Future Feature
 
 현재 범위:
 - 애플리케이션/스크립트 단위 디버깅
@@ -207,7 +270,7 @@ return {
 Future Feature:
 - Python test case 단위 디버깅 (`neotest` + DAP 전략)
 
-## 6. 트러블슈팅
+## 8. 트러블슈팅
 
 - JS/TS 디버깅이 안 열리면:
   - `node --version`, `npm --version` 확인 (Linux 필수 런타임)
