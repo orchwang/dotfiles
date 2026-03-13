@@ -209,11 +209,25 @@ return {
     "3rd/diagram.nvim",
     dependencies = { "3rd/image.nvim" },
     ft = { "markdown" },
-    opts = {
-      renderer_options = {
-        mermaid = { theme = "dark" },
-      },
-    },
+    opts = function()
+      local mermaid_opts = {
+        theme = "dark",
+        scale = 3,
+        width = 1200,
+        height = 900,
+      }
+      if vim.fn.has "linux" == 1 then
+        local puppeteer_config = vim.fn.expand "~/.config/puppeteer.json"
+        if vim.fn.filereadable(puppeteer_config) == 1 then
+          mermaid_opts.cli_args = { "-p", puppeteer_config }
+        end
+      end
+      return {
+        renderer_options = {
+          mermaid = mermaid_opts,
+        },
+      }
+    end,
   },
 
   {
