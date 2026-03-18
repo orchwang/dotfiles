@@ -56,6 +56,9 @@ return {
 
         -- Linter
         "eslint_d",
+        { "golangci-lint", condition = function()
+          return vim.fn.executable "go" == 1
+        end },
 
         -- Formatter
         "stylua",
@@ -170,6 +173,14 @@ return {
     },
     config = function()
       require "configs.dap"
+    end,
+  },
+
+  {
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require "configs.lint"
     end,
   },
 
