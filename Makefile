@@ -7,11 +7,11 @@ OS := $(shell uname -s)
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -180,6 +180,28 @@ else
 	@echo "On macOS, go is installed via brew"
 endif
 
+GO_PACKAGES := \
+	golang.org/x/tools/cmd/goimports@latest \
+	mvdan.cc/gofumpt@latest \
+	github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+set-go-packages:
+	@GO_BIN="$$(command -v go || echo "$(HOME)/.local/go/bin/go")"; \
+	if [ ! -x "$$GO_BIN" ]; then \
+		echo "Go is not installed. Run 'make set-golang' (Linux) or 'make set-packages' (macOS) first."; \
+		exit 1; \
+	fi; \
+	for pkg in $(GO_PACKAGES); do \
+		name=$$(basename "$${pkg%%@*}"); \
+		if command -v "$$name" > /dev/null 2>&1 || [ -x "$(HOME)/go/bin/$$name" ]; then \
+			echo "  OK: $$name"; \
+		else \
+			echo "  Installing $$name..."; \
+			"$$GO_BIN" install "$$pkg"; \
+		fi; \
+	done; \
+	echo "Go packages ready."
+
 set-nvchad-deps:
 ifeq ($(OS),Darwin)
 	@echo "Installing NvChad dependencies via Homebrew..."
@@ -189,10 +211,10 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-install-nvchad: set-brew set-nvchad-deps set-rust link-nvim set-nvim-tools
+install-nvchad: set-brew set-nvchad-deps set-rust set-go-packages link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 else
-install-nvchad: set-neovim set-uv set-ruff set-golang set-rust link-nvim set-nvim-tools
+install-nvchad: set-neovim set-uv set-ruff set-golang set-rust set-go-packages link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 endif
 
@@ -425,7 +447,7 @@ unlink:
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-nvchad-deps set-mermaid-cli set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-mermaid-cli set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-nvim link-ghostty link-puppeteer \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
