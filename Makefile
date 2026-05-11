@@ -2,12 +2,17 @@ SHELL := /bin/bash
 DOTFILES_DIR := $(shell pwd)
 OS := $(shell uname -s)
 
+# Pin Neovim to the last 0.11.x release for compatibility with
+# nvim-treesitter master (master branch was archived; 0.12+ breaks
+# the set-lang-from-info-string! injection directive).
+NVIM_VERSION := v0.11.6
+
 # ============================================================
 # Primary targets
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
@@ -63,27 +68,32 @@ else
 endif
 
 set-neovim:
-ifneq ($(OS),Darwin)
-	@if command -v nvim > /dev/null 2>&1 && nvim --version | head -1 | grep -qE 'v0\.(9|[1-9][0-9])'; then \
-		echo "Neovim >= 0.9 already installed"; \
-	else \
-		ARCH=$$(uname -m); \
-		case "$$ARCH" in \
-			x86_64|amd64) NVIM_TARBALL="nvim-linux-x86_64.tar.gz"; NVIM_DIR="nvim-linux-x86_64" ;; \
-			aarch64|arm64) NVIM_TARBALL="nvim-linux-arm64.tar.gz"; NVIM_DIR="nvim-linux-arm64" ;; \
-			*) echo "Unsupported Linux architecture: $$ARCH"; exit 1 ;; \
-		esac; \
-		echo "Installing Neovim stable via tarball ($$NVIM_TARBALL)..."; \
-		curl -fLo /tmp/$$NVIM_TARBALL https://github.com/neovim/neovim/releases/download/stable/$$NVIM_TARBALL; \
-		tar -xzf /tmp/$$NVIM_TARBALL -C /tmp; \
-		mkdir -p $(HOME)/.local; \
-		cp -r /tmp/$$NVIM_DIR/* $(HOME)/.local/; \
-		rm -rf /tmp/$$NVIM_DIR /tmp/$$NVIM_TARBALL; \
-		echo "Neovim installed to ~/.local/bin/nvim"; \
-	fi
-else
-	@echo "On macOS, neovim is installed via brew"
-endif
+	@INSTALLED_VERSION="$$($(HOME)/.local/bin/nvim --version 2>/dev/null | head -1 | awk '{print $$2}')"; \
+	if [ "$$INSTALLED_VERSION" = "$(NVIM_VERSION)" ]; then \
+		echo "Neovim $(NVIM_VERSION) already installed at ~/.local/bin/nvim"; \
+		exit 0; \
+	fi; \
+	OS="$(OS)"; ARCH=$$(uname -m); \
+	case "$$OS-$$ARCH" in \
+		Darwin-arm64) NVIM_TARBALL="nvim-macos-arm64.tar.gz"; NVIM_DIR="nvim-macos-arm64" ;; \
+		Darwin-x86_64) NVIM_TARBALL="nvim-macos-x86_64.tar.gz"; NVIM_DIR="nvim-macos-x86_64" ;; \
+		Linux-x86_64|Linux-amd64) NVIM_TARBALL="nvim-linux-x86_64.tar.gz"; NVIM_DIR="nvim-linux-x86_64" ;; \
+		Linux-aarch64|Linux-arm64) NVIM_TARBALL="nvim-linux-arm64.tar.gz"; NVIM_DIR="nvim-linux-arm64" ;; \
+		*) echo "Unsupported platform: $$OS $$ARCH"; exit 1 ;; \
+	esac; \
+	URL="https://github.com/neovim/neovim/releases/download/$(NVIM_VERSION)/$$NVIM_TARBALL"; \
+	echo "Installing Neovim $(NVIM_VERSION) via tarball ($$NVIM_TARBALL)..."; \
+	curl -fLo /tmp/$$NVIM_TARBALL "$$URL"; \
+	if [ "$$OS" = "Darwin" ]; then xattr -c /tmp/$$NVIM_TARBALL 2>/dev/null || true; fi; \
+	tar -xzf /tmp/$$NVIM_TARBALL -C /tmp; \
+	if [ "$$OS" = "Darwin" ]; then xattr -cr /tmp/$$NVIM_DIR 2>/dev/null || true; fi; \
+	mkdir -p $(HOME)/.local; \
+	cp -R /tmp/$$NVIM_DIR/bin $(HOME)/.local/; \
+	[ -d /tmp/$$NVIM_DIR/lib ] && cp -R /tmp/$$NVIM_DIR/lib $(HOME)/.local/ || true; \
+	cp -R /tmp/$$NVIM_DIR/share $(HOME)/.local/; \
+	rm -rf /tmp/$$NVIM_DIR /tmp/$$NVIM_TARBALL; \
+	echo "Neovim $(NVIM_VERSION) installed to ~/.local/bin/nvim"; \
+	echo "NOTE: ensure \$$HOME/.local/bin precedes /opt/homebrew/bin in PATH"
 
 set-lazygit:
 ifneq ($(OS),Darwin)
@@ -204,14 +214,14 @@ set-go-packages:
 
 set-nvchad-deps:
 ifeq ($(OS),Darwin)
-	@echo "Installing NvChad dependencies via Homebrew..."
-	@brew install neovim uv ruff go
+	@echo "Installing NvChad dependencies via Homebrew (neovim pinned via set-neovim)..."
+	@brew install uv ruff go
 else
 	@echo "set-nvchad-deps: on Linux, use set-neovim, set-uv, set-ruff"
 endif
 
 ifeq ($(OS),Darwin)
-install-nvchad: set-brew set-nvchad-deps set-rust set-go-packages link-nvim set-nvim-tools
+install-nvchad: set-brew set-nvchad-deps set-neovim set-rust set-go-packages link-nvim set-nvim-tools
 	@echo "NvChad installation complete."
 else
 install-nvchad: set-neovim set-uv set-ruff set-golang set-rust set-go-packages link-nvim set-nvim-tools
@@ -255,9 +265,10 @@ else
 endif
 
 set-nvim-tools:
-	@NVIM_BIN="$$(command -v nvim || true)"; \
-	if [ -z "$$NVIM_BIN" ] && [ -x "$(HOME)/.local/bin/nvim" ]; then \
+	@if [ -x "$(HOME)/.local/bin/nvim" ]; then \
 		NVIM_BIN="$(HOME)/.local/bin/nvim"; \
+	else \
+		NVIM_BIN="$$(command -v nvim || true)"; \
 	fi; \
 	if [ -n "$$NVIM_BIN" ]; then \
 		echo "Installing Neovim plugins and Mason tools (headless) with $$NVIM_BIN..."; \

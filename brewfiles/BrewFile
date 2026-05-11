@@ -11,7 +11,8 @@ brew "curl"
 brew "fd"
 brew "bat"
 brew "eza"
-brew "neovim"
+# neovim — Homebrew rolls forward (0.12+) which breaks nvim-treesitter master.
+# Pinned to v0.11.6 via Makefile set-neovim target.
 brew "tmux"
 brew "git"
 brew "gitui"
