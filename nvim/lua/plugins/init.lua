@@ -194,6 +194,7 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
+    opts_extend = { "ensure_installed" },
     opts = {
       ensure_installed = { "markdown", "markdown_inline" },
     },
@@ -209,6 +210,7 @@ return {
   {
     "3rd/image.nvim",
     ft = { "markdown" },
+    build = false,
     opts = {
       backend = "kitty",
       processor = "magick_cli",
