@@ -36,6 +36,7 @@ export STARSHIP_CACHE=~/.starship/cache
 
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
+command -v direnv > /dev/null && eval "$(direnv hook zsh)"
 
 # Github
 # eval $(ssh-agent -s) ; ssh-add ~/.ssh/<your-key> > /dev/null
