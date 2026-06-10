@@ -7,6 +7,19 @@ OS := $(shell uname -s)
 # the set-lang-from-info-string! injection directive).
 NVIM_VERSION := v0.11.6
 
+# On a freshly-installed macOS, Homebrew's installer does not modify the
+# current shell's PATH (it only appends `brew shellenv` to ~/.zprofile,
+# which affects new login shells). Since each make recipe runs in its own
+# non-login shell, brew-installed tools (brew, go, node/npm, tmux, ...)
+# are invisible to later targets in the same `make install` run. Prepend
+# this to any recipe that depends on brew-installed binaries so it loads
+# the Homebrew environment first (Apple Silicon or Intel prefix).
+ifeq ($(OS),Darwin)
+BREW_ENV := eval "$$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null)";
+else
+BREW_ENV :=
+endif
+
 # ============================================================
 # Primary targets
 # ============================================================
@@ -30,7 +43,11 @@ ifeq ($(OS),Darwin)
 	@if xcode-select -p > /dev/null 2>&1; then \
 		echo "Xcode command line tools already installed"; \
 	else \
-		xcode-select --install; \
+		echo "Installing Xcode command line tools (a GUI dialog will appear)..."; \
+		xcode-select --install || true; \
+		echo "Waiting for Xcode command line tools to finish installing..."; \
+		until xcode-select -p > /dev/null 2>&1; do sleep 5; done; \
+		echo "Xcode command line tools installed"; \
 	fi
 else
 	@echo "Skipping xcode (not macOS)"
@@ -53,8 +70,8 @@ endif
 
 set-packages:
 ifeq ($(OS),Darwin)
-	brew update
-	brew bundle --file=$(DOTFILES_DIR)/brewfiles/Brewfile
+	$(BREW_ENV) brew update
+	$(BREW_ENV) brew bundle --file=$(DOTFILES_DIR)/brewfiles/Brewfile
 else
 	@echo "On Linux, use: make set-apt-packages"
 endif
@@ -196,7 +213,7 @@ GO_PACKAGES := \
 	github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 set-go-packages:
-	@GO_BIN="$$(command -v go || echo "$(HOME)/.local/go/bin/go")"; \
+	@$(BREW_ENV) GO_BIN="$$(command -v go || echo "$(HOME)/.local/go/bin/go")"; \
 	if [ ! -x "$$GO_BIN" ]; then \
 		echo "Go is not installed. Run 'make set-golang' (Linux) or 'make set-packages' (macOS) first."; \
 		exit 1; \
@@ -215,7 +232,7 @@ set-go-packages:
 set-nvchad-deps:
 ifeq ($(OS),Darwin)
 	@echo "Installing NvChad dependencies via Homebrew (neovim pinned via set-neovim)..."
-	@brew install uv ruff go
+	@$(BREW_ENV) brew install uv ruff go
 else
 	@echo "set-nvchad-deps: on Linux, use set-neovim, set-uv, set-ruff"
 endif
@@ -230,8 +247,8 @@ endif
 
 install-others:
 ifeq ($(OS),Darwin)
-	brew update
-	brew bundle --file=$(DOTFILES_DIR)/brewfiles/BrewFile.others
+	$(BREW_ENV) brew update
+	$(BREW_ENV) brew bundle --file=$(DOTFILES_DIR)/brewfiles/BrewFile.others
 else
 	@echo "install-others: only available on macOS (uses Brewfile)"
 endif
@@ -245,7 +262,7 @@ set-rust:
 	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
 
 set-mermaid-cli:
-	@if command -v mmdc > /dev/null 2>&1; then \
+	@$(BREW_ENV) if command -v mmdc > /dev/null 2>&1; then \
 		echo "mermaid-cli already installed"; \
 	else \
 		echo "Installing @mermaid-js/mermaid-cli..."; \
@@ -265,7 +282,9 @@ else
 endif
 
 set-nvim-tools:
-	@if [ -x "$(HOME)/.local/bin/nvim" ]; then \
+	@$(BREW_ENV) [ -f "$(HOME)/.cargo/env" ] && . "$(HOME)/.cargo/env"; \
+	export PATH="$(HOME)/.local/bin:$(HOME)/go/bin:$$PATH"; \
+	if [ -x "$(HOME)/.local/bin/nvim" ]; then \
 		NVIM_BIN="$(HOME)/.local/bin/nvim"; \
 	else \
 		NVIM_BIN="$$(command -v nvim || true)"; \
@@ -406,9 +425,9 @@ set-tmux-plugins:
 		echo "TPM installed"; \
 	fi
 	@ln -sf $(DOTFILES_DIR)/tmux/.tmux.conf $(HOME)/.tmux.conf
-	@tmux set-environment -g TMUX_PLUGIN_MANAGER_PATH $(HOME)/.config/tmux/plugins 2>/dev/null || \
+	@$(BREW_ENV) tmux set-environment -g TMUX_PLUGIN_MANAGER_PATH $(HOME)/.config/tmux/plugins 2>/dev/null || \
 		tmux start-server \; set-environment -g TMUX_PLUGIN_MANAGER_PATH $(HOME)/.config/tmux/plugins
-	@$(HOME)/.config/tmux/plugins/tpm/bin/install_plugins
+	@$(BREW_ENV) $(HOME)/.config/tmux/plugins/tpm/bin/install_plugins
 
 tmux-restart:
 	@tmux kill-server 2>/dev/null; echo "tmux server killed"
