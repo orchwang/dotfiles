@@ -63,7 +63,7 @@ return {
         -- Formatter
         "stylua",
         "prettier",
-        "rustfmt",
+        -- rustfmt is provided by the Rust toolchain (rustup), not Mason.
         { "goimports", condition = function()
           return vim.fn.executable "go" == 1
         end },
