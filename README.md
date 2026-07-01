@@ -47,6 +47,40 @@ Installs packages via apt, then Starship, zoxide, uv, ruff, and the Rust toolcha
 | `make clean`             | yes   | --     | Remove unlisted Homebrew packages    |
 | `make unlink`            | yes   | yes    | Remove all symlinks                  |
 
+## Tmux
+
+### Pane labels
+
+Every pane shows a status line above it (`pane-border-status top`) with its
+index and a label — either a manually-assigned name or, by default, the
+pane's running command. This is meant for identifying panes at a glance,
+e.g. distinguishing several Claude Code agent panes in the same window.
+
+- `prefix + R`: prompt for a label and assign it to the current pane.
+- Labels are stored as a pane-scoped `@label` option, not the terminal
+  title, so they survive whatever OSC title escape sequences the running
+  program (nvim, Claude Code, etc.) sends — unlike `select-pane -T`, which
+  gets overwritten by those programs.
+
+### Predefined session layouts
+
+`tmux/scripts/tmux-layout.sh` (symlinked to `~/.local/bin/tmux-layout` by
+`make link`) builds a named tmux session with a fixed pane arrangement,
+independent of tmux-resurrect/continuum (which just replays whatever panes
+happened to be open at last save). If the session already exists it's left
+alone and just attached/switched to.
+
+```sh
+tmux-layout synapse-monorepo [path]   # defaults to ~/Projects/synapse
+```
+
+This builds: left 50% running nvim; right 50% split into a 3-row column
+(`agent-1`, `agent-2`, `agent-3` — plain shells, ready for `claude`) and a
+2-row column (`lazygit`, `shell`).
+
+Add more layouts by writing a `layout_<name>` function in the script and
+registering it in `main()`'s case statement.
+
 ## Local Overrides
 
 Machine-specific secrets (tokens, SSH agent, private registries) go in
