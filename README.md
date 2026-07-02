@@ -81,6 +81,39 @@ This builds: left 50% running nvim; right 50% split into a 3-row column
 Add more layouts by writing a `layout_<name>` function in the script and
 registering it in `main()`'s case statement.
 
+### Rebalancing a column
+
+`prefix + =` evenly redistributes pane heights within the current pane's
+column (the vertical stack of panes sharing its left edge) — e.g. after
+opening a few more shells stacked in a 25%-wide column, this squares them
+back up to equal height without disturbing the 50|25|25 horizontal split or
+any other column. Mnemonic: vim's `<C-w>=`.
+
+Runs `tmux/scripts/tmux-rebalance-column.sh` (symlinked to
+`~/.local/bin/tmux-rebalance-column`), which can also be called directly
+with a pane id (`tmux-rebalance-column %12`).
+
+### Fixing the 50|25|25 split itself
+
+If the columns themselves have drifted (e.g. dragging a border narrows the
+left 50% pane, or the two 25% columns end up 15|35 instead of 25|25),
+`prefix + |` resets the window's top-level column widths back to 50|25|25
+in one shot. Row heights inside each column are untouched — run this first,
+then `prefix + =` per column if rows also need rebalancing.
+
+This runs `tmux-set-column-widths` (from
+`tmux/scripts/tmux-set-column-widths.sh`), which takes percentages
+left-to-right and can be called directly for other ratios:
+
+```sh
+tmux-set-column-widths 50 25 25          # current window
+tmux-set-column-widths -t <window-id> 60 20 20
+```
+
+Only the first N-1 columns are explicitly resized; the last one absorbs
+whatever's left, the same trick `tmux-rebalance-column.sh` uses on the
+vertical axis.
+
 ## Local Overrides
 
 Machine-specific secrets (tokens, SSH agent, private registries) go in

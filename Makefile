@@ -301,7 +301,7 @@ set-nvim-tools:
 # Symlinks
 # ============================================================
 
-link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-nvim link-ghostty link-puppeteer
+link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-puppeteer
 	@echo "All symlinks created."
 
 link-zshrc:
@@ -341,6 +341,16 @@ link-tmux-layout:
 	@echo "Linking tmux-layout script"
 	@mkdir -p $(HOME)/.local/bin
 	@ln -sf $(DOTFILES_DIR)/tmux/scripts/tmux-layout.sh $(HOME)/.local/bin/tmux-layout
+
+link-tmux-rebalance:
+	@echo "Linking tmux-rebalance-column script"
+	@mkdir -p $(HOME)/.local/bin
+	@ln -sf $(DOTFILES_DIR)/tmux/scripts/tmux-rebalance-column.sh $(HOME)/.local/bin/tmux-rebalance-column
+
+link-tmux-colwidths:
+	@echo "Linking tmux-set-column-widths script"
+	@mkdir -p $(HOME)/.local/bin
+	@ln -sf $(DOTFILES_DIR)/tmux/scripts/tmux-set-column-widths.sh $(HOME)/.local/bin/tmux-set-column-widths
 
 link-nvim:
 	@echo "Linking NvChad config"
@@ -448,7 +458,7 @@ tmux-reload:
 
 status:
 	@echo "=== Symlinks ==="
-	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.config/nvim ~/.config/ghostty/config ~/.config/puppeteer.json; do \
+	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.local/bin/tmux-rebalance-column ~/.local/bin/tmux-set-column-widths ~/.config/nvim ~/.config/ghostty/config ~/.config/puppeteer.json; do \
 		if [ -L "$$f" ]; then echo "  OK: $$f -> $$(readlink $$f)"; \
 		elif [ -e "$$f" ]; then echo "  WARN: $$f (not a symlink)"; \
 		else echo "  MISSING: $$f"; fi; \
@@ -490,13 +500,15 @@ unlink:
 	@rm -f $(HOME)/.gitconfig
 	@rm -f $(HOME)/.tmux.conf
 	@rm -f $(HOME)/.local/bin/tmux-layout
+	@rm -f $(HOME)/.local/bin/tmux-rebalance-column
+	@rm -f $(HOME)/.local/bin/tmux-set-column-widths
 	@rm -f $(HOME)/.config/nvim
 	@rm -f $(HOME)/.config/ghostty/config
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
         set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-mermaid-cli set-hunk set-nvim-tools \
-        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-nvim link-ghostty link-puppeteer \
+        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-puppeteer \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
         clean unlink
