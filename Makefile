@@ -2,6 +2,14 @@ SHELL := /bin/bash
 DOTFILES_DIR := $(shell pwd)
 OS := $(shell uname -s)
 
+# Distinguish Arch-family Linux (Omarchy, Arch, EndeavourOS, ...) from
+# Debian-family (Ubuntu) by the presence of pacman. Arch pulls everything
+# from pacman; Debian uses apt plus curl-based installers for the tools
+# apt ships too old or not at all (starship, zoxide, uv, ruff, lazygit, go).
+ifeq ($(OS),Linux)
+ARCH_LINUX := $(shell command -v pacman >/dev/null 2>&1 && echo yes)
+endif
+
 # Pin Neovim to the last 0.11.x release for compatibility with
 # nvim-treesitter master (master branch was archived; 0.12+ breaks
 # the set-lang-from-info-string! injection directive).
@@ -26,6 +34,12 @@ endif
 
 ifeq ($(OS),Darwin)
 install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
+	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "If tmux is running, reload config: make tmux-reload"
+else ifeq ($(ARCH_LINUX),yes)
+# Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
+# pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
+install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
 	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
@@ -82,6 +96,15 @@ ifneq ($(OS),Darwin)
 	sudo apt install -y $$(cat $(DOTFILES_DIR)/packages/apt-packages.txt | grep -v '^#' | grep -v '^$$' | tr '\n' ' ')
 else
 	@echo "Skipping apt (not Linux)"
+endif
+
+set-pacman-packages:
+ifeq ($(ARCH_LINUX),yes)
+	# -Syu (not -Sy): a full sync+upgrade avoids Arch partial-upgrade breakage
+	# when installing against a stale package database.
+	sudo pacman -Syu --needed --noconfirm $$(cat $(DOTFILES_DIR)/packages/pacman-packages.txt | grep -v '^#' | grep -v '^$$' | tr '\n' ' ')
+else
+	@echo "Skipping pacman (not Arch Linux)"
 endif
 
 set-neovim:
@@ -408,12 +431,18 @@ check-plugins:
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
 	else \
-		if [ ! -f "/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then \
-			echo "  MISSING: zsh-autosuggestions"; missing=1; \
-		else echo "  OK: zsh-autosuggestions"; fi; \
-		if [ ! -f "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
-			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
-		else echo "  OK: zsh-syntax-highlighting"; fi; \
+		as_found=0; \
+		for p in /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do \
+			[ -f "$$p" ] && as_found=1 && break; \
+		done; \
+		if [ $$as_found -eq 1 ]; then echo "  OK: zsh-autosuggestions"; \
+		else echo "  MISSING: zsh-autosuggestions"; missing=1; fi; \
+		sh_found=0; \
+		for p in /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do \
+			[ -f "$$p" ] && sh_found=1 && break; \
+		done; \
+		if [ $$sh_found -eq 1 ]; then echo "  OK: zsh-syntax-highlighting"; \
+		else echo "  MISSING: zsh-syntax-highlighting"; missing=1; fi; \
 		for cmd in starship zoxide ls dircolors uv ruff rustc cargo direnv; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
@@ -507,7 +536,7 @@ unlink:
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-mermaid-cli set-hunk set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-mermaid-cli set-hunk set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-puppeteer \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \

@@ -1,0 +1,42 @@
+# Arch Linux (Omarchy) package list — installed via `make set-pacman-packages`.
+# Unlike Ubuntu/apt, the Arch official repos carry recent versions of
+# starship, zoxide, uv, ruff, lazygit and go, so they come from pacman here
+# instead of the curl-based installers used on Debian.
+
+# Core
+zsh
+tmux
+git
+curl
+wget
+unzip
+base-devel
+
+# CLI tools
+fzf
+fd
+bat
+nyancat
+btop
+direnv
+starship
+zoxide
+uv
+ruff
+lazygit
+go
+# neovim — repo version rolls forward (0.12+) and breaks nvim-treesitter
+# master; installed pinned via the set-neovim target instead.
+
+# Runtime for Mason JS/TS tools (lsp/dap/linter/formatter)
+nodejs
+npm
+
+# Neovim image/diagram support
+imagemagick
+luarocks
+lua51
+
+# Zsh plugins
+zsh-autosuggestions
+zsh-syntax-highlighting

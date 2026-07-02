@@ -1,6 +1,7 @@
 # dotfiles
 
-Personal development environment configuration for macOS and Ubuntu.
+Personal development environment configuration for macOS, Ubuntu, and
+Omarchy (Arch Linux).
 
 ## What's Included
 
@@ -14,7 +15,7 @@ Personal development environment configuration for macOS and Ubuntu.
 | `tmux/`      | Tmux configuration        | `~/.tmux.conf`                    |
 | `ghostty/`   | Ghostty terminal config   | `~/.config/ghostty/config`        |
 | `brewfiles/` | Homebrew package lists    | (macOS only, used by `make set-packages`) |
-| `packages/`  | apt package list          | (Ubuntu only, used by `make set-apt-packages`) |
+| `packages/`  | apt + pacman package lists | (Linux only, used by `make set-apt-packages` / `make set-pacman-packages`) |
 
 ## Quick Start
 
@@ -24,7 +25,9 @@ cd ~/dotfiles
 make install
 ```
 
-This works on both macOS and Ubuntu. The Makefile detects your OS automatically.
+This works on macOS, Ubuntu, and Omarchy (Arch Linux). The Makefile detects
+your OS automatically — and on Linux, detects Arch vs Debian by the presence
+of `pacman`.
 
 ### macOS
 Installs Xcode CLI tools, Homebrew, packages from the Brewfile, and the Rust toolchain.
@@ -32,20 +35,30 @@ Installs Xcode CLI tools, Homebrew, packages from the Brewfile, and the Rust too
 ### Ubuntu
 Installs packages via apt, then Starship, zoxide, uv, ruff, and the Rust toolchain via their official install scripts.
 
+### Omarchy (Arch Linux)
+Installs packages via `pacman` from `packages/pacman-packages.txt`. Arch's
+official repos already carry recent Starship, zoxide, uv, ruff, lazygit and
+Go, so those come from pacman rather than the curl installers used on Ubuntu.
+Neovim is still pinned to v0.11.6 via tarball (the repo build rolls forward to
+0.12+, which breaks nvim-treesitter master), and Rust still comes from rustup.
+`make set-pacman-packages` runs a full `pacman -Syu` first to avoid Arch
+partial-upgrade breakage.
+
 ## Targets
 
-| Target                   | macOS | Ubuntu | Description                          |
-|--------------------------|-------|--------|--------------------------------------|
-| `make install`           | yes   | yes    | Full setup                           |
-| `make install-nvchad`    | yes   | yes    | Install NvChad + LSP/formatter deps only |
-| `make link`              | yes   | yes    | Create symlinks only                 |
-| `make set-packages`      | yes   | --     | Install Homebrew packages            |
-| `make set-apt-packages`  | --    | yes    | Install apt packages                 |
-| `make set-default-shell` | yes   | yes    | Set zsh as default shell             |
-| `make check-plugins`     | yes   | yes    | Verify plugins/tools are installed   |
-| `make set-rust`          | yes   | yes    | Install Rust toolchain (rustup + rustfmt + clippy) |
-| `make clean`             | yes   | --     | Remove unlisted Homebrew packages    |
-| `make unlink`            | yes   | yes    | Remove all symlinks                  |
+| Target                     | macOS | Ubuntu | Omarchy | Description                          |
+|----------------------------|-------|--------|---------|--------------------------------------|
+| `make install`             | yes   | yes    | yes     | Full setup                           |
+| `make install-nvchad`      | yes   | yes    | yes     | Install NvChad + LSP/formatter deps only |
+| `make link`                | yes   | yes    | yes     | Create symlinks only                 |
+| `make set-packages`        | yes   | --     | --      | Install Homebrew packages            |
+| `make set-apt-packages`    | --    | yes    | --      | Install apt packages                 |
+| `make set-pacman-packages` | --    | --     | yes     | Install pacman packages              |
+| `make set-default-shell`   | yes   | yes    | yes     | Set zsh as default shell             |
+| `make check-plugins`       | yes   | yes    | yes     | Verify plugins/tools are installed   |
+| `make set-rust`            | yes   | yes    | yes     | Install Rust toolchain (rustup + rustfmt + clippy) |
+| `make clean`               | yes   | --     | --      | Remove unlisted Homebrew packages    |
+| `make unlink`              | yes   | yes    | yes     | Remove all symlinks                  |
 
 ## Tmux
 

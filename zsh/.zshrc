@@ -8,13 +8,23 @@ if [[ "$(uname)" == "Darwin" ]]; then
 else
     alias ls='ls --color=auto'
     eval "$(dircolors ~/.dircolors)"
-    [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
-        source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
-        source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # zsh plugins live under different prefixes per distro:
+    #   Arch/Omarchy: /usr/share/zsh/plugins/<plugin>/<plugin>.zsh
+    #   Ubuntu:       /usr/share/<plugin>/<plugin>.zsh
+    for _zplug in \
+        /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+        /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+        [ -f "$_zplug" ] && source "$_zplug" && break
+    done
+    for _zplug in \
+        /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+        /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+        [ -f "$_zplug" ] && source "$_zplug" && break
+    done
+    unset _zplug
     # Set TERM outside tmux/screen (SSH sessions, Ghostty, etc.)
     [[ -z "$TMUX" && -z "$STY" ]] && export TERM=xterm-256color
-    # Ubuntu renames fd and bat
+    # Ubuntu renames fd and bat; Arch ships them as fd/bat (these become no-ops)
     command -v fdfind > /dev/null && alias fd='fdfind'
     command -v batcat > /dev/null && alias bat='batcat'
 fi
