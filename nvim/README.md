@@ -54,6 +54,8 @@ nvim/
 - insert 모드 `jk` -> `<ESC>`
 - `s`, `S`, `gw`: `hop.nvim` 기반 이동
 - `<leader>cv`: Python 가상환경 선택 (`venv-selector.nvim`)
+- `<leader>fa`: 무시된/숨김 파일까지 포함한 전체 파일 검색 (`.gitignore` 무시)
+- `<leader>fA`: 무시된/숨김 파일까지 포함한 전체 문자열 검색 (live grep, `.gitignore` 무시)
 
 커스터마이징 원칙:
 - 플러그인 추가/변경: `lua/plugins/init.lua`
@@ -108,11 +110,24 @@ nvim/
 | `render-markdown.nvim` | Markdown 리치 프리뷰 | `ft = markdown` |
 | `image.nvim` | 이미지 인라인 렌더링 (Kitty backend) | `ft = markdown` |
 | `diagram.nvim` | Mermaid 다이어그램 인라인 렌더링 | `ft = markdown` |
+| `telescope-fzf-native.nvim` | Telescope 네이티브(C) 정렬기 | `make` 사용 가능 시 (`cond`) |
 
 ### 5.2 Telescope 커스텀 설정
 
-- `find_files`: 숨김 파일 포함, `.gitignore` 무시 (`no_ignore = true`, `hidden = true`)
-- `live_grep`: 숨김 파일 포함, `.gitignore` 무시 (`--no-ignore-vcs`, `--hidden`)
+**기본 검색과 전체 검색을 분리한다** — 대형 프로젝트(`.venv`/`node_modules` 등)에서
+기본 검색이 무시 파일까지 인덱싱해 타이핑 지연이 발생하던 문제를 막기 위한 원칙이다.
+
+- 기본 검색 (`.gitignore` 존중):
+  - `<leader>ff` (`find_files`): 숨김 파일은 포함하되(`hidden = true`) `.gitignore`는 존중 (`no_ignore` 미설정)
+  - `<leader>fw` (`live_grep`): `--hidden`만 사용하고 `--no-ignore-vcs`는 미사용
+- 전체 검색 (무시 파일까지 포함, `lua/mappings.lua`에 정의):
+  - `<leader>fa`: `find_files` + `no_ignore = true, hidden = true, file_ignore_patterns = {}`
+  - `<leader>fA`: `live_grep` + `--no-ignore-vcs --hidden`, `file_ignore_patterns = {}`
+- `defaults.file_ignore_patterns`: `.gitignore`가 없거나 불완전한 저장소를 위한 방어적 안전망
+  (`.git/`, `.venv/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`, `target/` 등).
+  전체 검색 키맵은 이 값을 `{}`로 비워 진짜 전체 검색을 보장한다.
+- `telescope-fzf-native.nvim`: 네이티브 정렬기로 대형 프로젝트의 재정렬 비용을 낮춘다
+  (`config`에서 `load_extension("fzf")`, 빌드 실패 시 `pcall`로 무시).
 
 ### 5.3 nvim-tree 커스텀 설정
 

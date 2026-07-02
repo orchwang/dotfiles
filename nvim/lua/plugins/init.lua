@@ -268,6 +268,14 @@ return {
 
   {
     "nvim-telescope/telescope.nvim",
+    dependencies = {
+      {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        build = "make",
+        -- Native (C) sorter; skip the build when `make` is unavailable.
+        cond = vim.fn.executable "make" == 1,
+      },
+    },
     opts = {
       defaults = {
         vimgrep_arguments = {
@@ -279,19 +287,47 @@ return {
           "--line-number",
           "--column",
           "--smart-case",
-          "--no-ignore-vcs",
+          -- `--no-ignore-vcs` intentionally dropped so default grep respects .gitignore.
           "--hidden",
+        },
+        -- Defensive safety net for repos with missing/incomplete .gitignore.
+        -- Full-search keymaps (<leader>fa / <leader>fA) clear this in mappings.lua.
+        file_ignore_patterns = {
+          "%.git/",
+          "%.venv/",
+          "venv/",
+          "node_modules/",
+          "__pycache__/",
+          "%.mypy_cache/",
+          "%.ruff_cache/",
+          "dist/",
+          "build/",
+          "target/",
         },
       },
       pickers = {
         find_files = {
-          no_ignore = true,
+          -- `no_ignore` intentionally dropped so default find respects .gitignore.
           hidden = true,
         },
         live_grep = {
-          additional_args = { "--no-ignore-vcs", "--hidden" },
+          additional_args = { "--hidden" },
+        },
+      },
+      extensions = {
+        fzf = {
+          fuzzy = true,
+          override_generic_sorter = true,
+          override_file_sorter = true,
+          case_mode = "smart_case",
         },
       },
     },
+    config = function(_, opts)
+      local telescope = require "telescope"
+      telescope.setup(opts)
+      -- Only present when telescope-fzf-native built successfully.
+      pcall(telescope.load_extension, "fzf")
+    end,
   },
 }
