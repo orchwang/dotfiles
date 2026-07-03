@@ -101,8 +101,21 @@ endif
 set-pacman-packages:
 ifeq ($(ARCH_LINUX),yes)
 	# -Syu (not -Sy): a full sync+upgrade avoids Arch partial-upgrade breakage
-	# when installing against a stale package database.
-	sudo pacman -Syu --needed --noconfirm $$(cat $(DOTFILES_DIR)/packages/pacman-packages.txt | grep -v '^#' | grep -v '^$$' | tr '\n' ' ')
+	# when installing against a stale package database. Retry so a transient
+	# slow mirror ("Operation too slow") doesn't abort the whole run.
+	@pkgs="$$(grep -v '^#' $(DOTFILES_DIR)/packages/pacman-packages.txt | grep -v '^$$' | tr '\n' ' ')"; \
+	n=1; until sudo pacman -Syu --needed --noconfirm $$pkgs; do \
+		if [ $$n -ge 3 ]; then \
+			echo "pacman failed after $$n attempts — likely a slow/stale mirror."; \
+			echo "Refresh mirrors and retry: sudo pacman -Syyu  (or edit /etc/pacman.d/mirrorlist)"; \
+			exit 1; \
+		fi; \
+		n=$$((n+1)); echo "pacman failed (slow mirror?), retry $$n/3..."; sleep 3; \
+	done
+	# nyancat is a toy: install best-effort in its own transaction so a slow
+	# mirror on it can never abort the essential packages above.
+	@sudo pacman -S --needed --noconfirm nyancat 2>/dev/null \
+		|| echo "Skipped nyancat (slow mirror or unavailable) — non-essential."
 else
 	@echo "Skipping pacman (not Arch Linux)"
 endif

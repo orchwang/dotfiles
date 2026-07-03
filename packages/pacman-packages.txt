@@ -16,9 +16,10 @@ base-devel
 fzf
 fd
 bat
-nyancat
 btop
 direnv
+# nyancat — installed best-effort by set-pacman-packages (its own transaction),
+# so a slow mirror on this toy can't abort the essential packages.
 starship
 zoxide
 uv
