@@ -34,17 +34,17 @@ endif
 
 ifeq ($(OS),Darwin)
 install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
-	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else ifeq ($(ARCH_LINUX),yes)
 # Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
 # pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
 install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
-	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
 install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
-	@echo "Installation complete. Restart your shell or run: source ~/.zshrc"
+	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
 
@@ -412,17 +412,32 @@ link-puppeteer:
 # ============================================================
 
 set-default-shell:
-	@case "$$SHELL" in \
-		*/zsh) echo "zsh is already the default shell" ;; \
-		*) \
-			echo "Setting zsh as default shell..."; \
-			ZSH_PATH=$$(which zsh); \
-			if ! grep -qxF "$$ZSH_PATH" /etc/shells; then \
-				echo "$$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null; \
-			fi; \
-			chsh -s "$$ZSH_PATH"; \
-		;; \
-	esac
+	@ZSH_PATH="$$(command -v zsh)"; \
+	if [ -z "$$ZSH_PATH" ]; then \
+		echo "zsh not found in PATH — install packages first (set-pacman-packages / set-apt-packages / set-packages)."; \
+		exit 1; \
+	fi; \
+	USER_NAME="$${USER:-$$(id -un)}"; \
+	CURRENT_SHELL="$$(getent passwd "$$USER_NAME" 2>/dev/null | cut -d: -f7)"; \
+	[ -z "$$CURRENT_SHELL" ] && CURRENT_SHELL="$$SHELL"; \
+	case "$$CURRENT_SHELL" in \
+		*/zsh) \
+			echo "zsh is already the default shell ($$CURRENT_SHELL)."; \
+			echo "If this terminal is still bash, run: exec zsh"; \
+			exit 0 ;; \
+	esac; \
+	echo "Setting zsh as default shell ($$ZSH_PATH)..."; \
+	if ! grep -qxF "$$ZSH_PATH" /etc/shells 2>/dev/null; then \
+		echo "$$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null; \
+	fi; \
+	if sudo chsh -s "$$ZSH_PATH" "$$USER_NAME"; then \
+		echo "Default shell changed to zsh (takes effect on next login)."; \
+	elif chsh -s "$$ZSH_PATH"; then \
+		echo "Default shell changed to zsh (takes effect on next login)."; \
+	else \
+		echo "Could not change shell automatically. Run manually: chsh -s $$ZSH_PATH"; \
+	fi; \
+	echo "To switch in this terminal right now: exec zsh"
 
 # ============================================================
 # Plugin check (platform-aware)
