@@ -101,3 +101,9 @@
         }; f"
     alias = "!git config --list | egrep '^alias.+'"
     master = "!git checkout master . && git diff master `git b0` | git apply"
+[credential "https://github.com"]
+	helper = 
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !gh auth git-credential
