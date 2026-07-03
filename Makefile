@@ -369,8 +369,24 @@ link-gitconfig:
 	@echo "Linking .gitconfig"
 	@ln -sf $(DOTFILES_DIR)/git/.gitconfig $(HOME)/.gitconfig
 
+# tmux 3.x and TPM both prefer $(XDG_CONFIG_HOME)/tmux/tmux.conf over
+# ~/.tmux.conf. A leftover file there silently shadows our symlink: tmux
+# loads its (conflicting) keybindings and TPM reads it for @plugin lines,
+# finding none, so no plugins install. Back it up out of the way.
 link-tmux:
 	@echo "Linking .tmux.conf"
+	@XDG_TMUX="$${XDG_CONFIG_HOME:-$(HOME)/.config}/tmux/tmux.conf"; \
+	if [ -e "$$XDG_TMUX" ] || [ -L "$$XDG_TMUX" ]; then \
+		if [ "$$(readlink "$$XDG_TMUX" 2>/dev/null)" = "$(DOTFILES_DIR)/tmux/.tmux.conf" ]; then \
+			rm -f "$$XDG_TMUX"; \
+			echo "  Removed stale symlink at $$XDG_TMUX (canonical config is ~/.tmux.conf)"; \
+		else \
+			BACKUP="$$XDG_TMUX.pre-dotfiles"; \
+			n=1; while [ -e "$$BACKUP" ]; do BACKUP="$$XDG_TMUX.pre-dotfiles.$$n"; n=$$((n+1)); done; \
+			mv "$$XDG_TMUX" "$$BACKUP"; \
+			echo "  Existing $$XDG_TMUX shadows ~/.tmux.conf. Backed up to $$BACKUP"; \
+		fi; \
+	fi
 	@ln -sf $(DOTFILES_DIR)/tmux/.tmux.conf $(HOME)/.tmux.conf
 
 link-tmux-layout:
