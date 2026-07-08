@@ -9,3 +9,6 @@ Brewfile_others.lock.json
 # Secrets / local overrides
 .zshrc.local
 .claude/settings.local.json
+
+# offline-devkit build artifacts (large bundles + staging)
+offline-devkit/dist/

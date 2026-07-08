@@ -16,6 +16,7 @@ Omarchy (Arch Linux).
 | `ghostty/`   | Ghostty terminal config   | `~/.config/ghostty/config`        |
 | `brewfiles/` | Homebrew package lists    | (macOS only, used by `make set-packages`) |
 | `packages/`  | apt + pacman package lists | (Linux only, used by `make set-apt-packages` / `make set-pacman-packages`) |
+| `offline-devkit/` | Airgapped bundle builder  | (builds an offline NvChad + LSP/DAP + utils installer; see below) |
 
 ## Quick Start
 
@@ -43,6 +44,21 @@ Neovim is still pinned to v0.11.6 via tarball (the repo build rolls forward to
 0.12+, which breaks nvim-treesitter master), and Rust still comes from rustup.
 `make set-pacman-packages` runs a full `pacman -Syu` first to avoid Arch
 partial-upgrade breakage.
+
+### Offline / airgapped (Ubuntu 24+)
+
+For a target with **no internet and no editor**, `offline-devkit/` builds a
+self-contained `.tar.gz` on an online machine (with Docker) that installs the
+whole NvChad + LSP/DAP + terminal-utility environment offline:
+
+```sh
+./offline-devkit/build.sh                 # both arches, standard scope
+# → offline-devkit/dist/devkit-ubuntu24-<arch>-<scope>-<date>.tar.gz
+```
+
+On the airgapped target: extract, run `./install.sh`, `exec zsh`, `nvim`. See
+[`offline-devkit/README.md`](offline-devkit/README.md). This is also driven by
+the `offline-devkit` Claude Code skill.
 
 ## Targets
 
