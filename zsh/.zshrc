@@ -40,6 +40,15 @@ command -v go > /dev/null && export PATH="$PATH:$(go env GOPATH)/bin"
 
 alias ll='ls -alF'
 
+# tmux: 빈 `tmux`는 이름 있는 앵커 세션 'main'으로 attach-or-create 한다.
+# @continuum-restore 'on'의 백그라운드 복원이 초기 세션 "0"을 kill 하는데,
+# 명명 세션에 붙어 있으면 복원이 서버를 비우지 못해(exit-empty) `[server exited]`
+# 경쟁 조건이 사라진다. 인자가 있는 호출(플러그인/스크립트)은 그대로 통과시킨다.
+tmux() {
+  if [ $# -eq 0 ]; then command tmux new-session -A -s main
+  else command tmux "$@"; fi
+}
+
 # Starship
 export STARSHIP_CONFIG=~/.config/starship.toml
 export STARSHIP_CACHE=~/.starship/cache
