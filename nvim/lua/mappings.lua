@@ -42,4 +42,12 @@ map("n", "<leader>fA", function()
   }
 end, { desc = "telescope live grep (incl. ignored)" })
 
+-- lazygit floating terminal (NvChad 내장 nvchad.term 모듈 재사용, snacks 미도입).
+-- cmd = "lazygit" → create()가 `lazygit; <shell>` 로 실행하므로 lazygit 종료 후엔
+-- 같은 float에 셸 프롬프트가 남고, <leader>gg 로 토글하면 숨겨진다 (NvChad float term과 동일 동작).
+-- lazygit 바이너리는 Makefile set-lazygit(Linux) / brew(macOS)로 이미 설치된 것을 사용.
+map("n", "<leader>gg", function()
+  require("nvchad.term").toggle { pos = "float", id = "lazygit", cmd = "lazygit" }
+end, { desc = "git lazygit (float)" })
+
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")

@@ -56,6 +56,7 @@ nvim/
 - `<leader>cv`: Python 가상환경 선택 (`venv-selector.nvim`)
 - `<leader>fa`: 무시된/숨김 파일까지 포함한 전체 파일 검색 (`.gitignore` 무시)
 - `<leader>fA`: 무시된/숨김 파일까지 포함한 전체 문자열 검색 (live grep, `.gitignore` 무시)
+- `<leader>gg`: lazygit 플로팅 터미널 (`nvchad.term` 내장 모듈)
 
 커스터마이징 원칙:
 - 플러그인 추가/변경: `lua/plugins/init.lua`
@@ -152,6 +153,23 @@ nvim/
 - Go 계열 Mason 도구(`gopls`, `goimports`, `gofumpt`, `delve`)를 위해 `golang-go`가 Linux 기본 패키지에 포함됩니다.
 - Python DAP adapter(`debugpy.adapter`)는 `uv`로 온디맨드 실행됩니다.
 - `set-nvim-tools`는 `PATH`의 `nvim`이 없을 때 `~/.local/bin/nvim`을 fallback으로 사용합니다.
+
+### 5.6 lazygit 통합 (`nvchad.term`)
+
+nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신규 플러그인 없이** NvChad가
+이미 로드하는 `nvchad.term` 모듈을 재사용한다.
+
+- 키맵: `<leader>gg` (`lua/mappings.lua`)
+- 구현: `require("nvchad.term").toggle { pos = "float", id = "lazygit", cmd = "lazygit" }`
+- 바이너리: Makefile `set-lazygit`(Linux) / brew(macOS)로 설치된 `lazygit`을 그대로 사용
+- 동작 특성: `nvchad.term`의 `create()`가 `lazygit; <shell>` 형태로 실행하므로,
+  lazygit을 `q`로 종료하면 같은 float에 셸 프롬프트가 남는다. `<leader>gg`로 토글하면 숨겨지며,
+  이는 NvChad 기본 float 터미널(`<A-i>`)과 동일한 동작이다.
+
+설계 메모: 순수 "lazygit-in-nvim" 목적에는 snacks가 불필요하다. snacks 도입의 실익은
+종료 시 자동 닫힘 / lazygit 테마-컬러스킴 동기화 / lazygit 내 파일 편집을 실행 중 nvim으로 여는
+정책 세 가지뿐이며, 이 설정은 그 대신 무의존 방식을 택했다. tmux 레이아웃
+(`tmux/scripts/tmux-layout.sh`)의 전용 lazygit 페인은 repo 전체 뷰 용도로 별개로 유지한다.
 
 ## 6. Python 개발 환경
 
