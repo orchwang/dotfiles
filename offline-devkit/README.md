@@ -58,7 +58,7 @@ docker run --privileged --rm tonistiigi/binfmt --install all
 
 | Scope | Contents |
 |---|---|
-| `standard` (default) | NvChad + core LSP (lua/py/ts·js/html·css/markdown) + formatters/linters (stylua, prettier, eslint_d, ruff) + DAP (debugpy, js-debug-adapter, codelldb) + Node runtime + terminal utils (fzf, fd, bat, ripgrep, btop, lazygit, tmux, starship, zoxide, direnv, zsh plugins). No Go/Rust compilers. |
+| `standard` (default) | NvChad + core LSP (lua/py/ts·js/html·css/markdown) + formatters/linters (stylua, prettier, eslint_d, ruff) + DAP (debugpy, js-debug-adapter, codelldb) + Node runtime + terminal utils (fzf, fd, bat, ripgrep, btop, lazygit, tmux, starship, zoxide, direnv, zsh plugins) + mermaid-ascii (`<leader>mm` Mermaid ASCII 렌더 백엔드, 정적 Go 바이너리). No Go/Rust compilers. |
 | `full` | `standard` + Go + rustup, which flips the `condition = executable "go"` guards in `nvim/lua/plugins/init.lua` on (gopls, delve, golangci-lint, goimports, gofumpt) and adds the Rust toolchain (rustfmt, clippy). |
 
 ## Install (on the airgapped target)
@@ -94,7 +94,9 @@ Or interactively in `nvim`:
 - `:checkhealth` — no failures that require network.
 - Open a `.py`/`.ts`/`.lua` file → LSP attaches; `<F5>` starts a DAP session.
 - `telescope` live-grep works (ripgrep present); `lazygit`, `starship`,
-  `zoxide` all resolve from `~/.local/bin`.
+  `zoxide`, `mermaid-ascii` all resolve from `~/.local/bin`.
+- Open a `.md` with a ` ```mermaid ` block → `<leader>mm` renders it as ASCII
+  (no image protocol/browser; works over SSH).
 
 ## Layout
 

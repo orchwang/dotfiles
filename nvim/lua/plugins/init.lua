@@ -207,41 +207,10 @@ return {
     opts = {},
   },
 
-  {
-    "3rd/image.nvim",
-    ft = { "markdown" },
-    build = false,
-    opts = {
-      backend = "kitty",
-      processor = "magick_cli",
-      tmux_show_only_in_active_window = true,
-    },
-  },
-
-  {
-    "3rd/diagram.nvim",
-    dependencies = { "3rd/image.nvim" },
-    ft = { "markdown" },
-    opts = function()
-      local mermaid_opts = {
-        theme = "dark",
-        scale = 3,
-        width = 1200,
-        height = 900,
-      }
-      if vim.fn.has "linux" == 1 then
-        local puppeteer_config = vim.fn.expand "~/.config/puppeteer.json"
-        if vim.fn.filereadable(puppeteer_config) == 1 then
-          mermaid_opts.cli_args = { "-p", puppeteer_config }
-        end
-      end
-      return {
-        renderer_options = {
-          mermaid = mermaid_opts,
-        },
-      }
-    end,
-  },
+  -- Mermaid 다이어그램은 이미지 대신 ASCII 아트로 미리본다 (SSH/tmux 호환).
+  -- 렌더링 로직은 configs/mermaid.lua의 자체 구현이며, 여기서는 백엔드 바이너리
+  -- mermaid-ascii(Go)가 lazy 밖(Makefile set-go-packages)에서 설치됨을 문서화만 한다.
+  -- 커맨드/키맵 등록은 mappings.lua에서 한다. 별도 플러그인 clone은 없다.
 
   {
     "linux-cultist/venv-selector.nvim",

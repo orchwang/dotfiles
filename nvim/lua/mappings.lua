@@ -50,4 +50,9 @@ map("n", "<leader>gg", function()
   require("nvchad.term").toggle { pos = "float", id = "lazygit", cmd = "lazygit" }
 end, { desc = "git lazygit (float)" })
 
+-- Mermaid 다이어그램을 ASCII 아트 플로트로 미리보기 (이미지 X, SSH/tmux 호환).
+-- 구현: configs/mermaid.lua / 백엔드: mermaid-ascii(Go, make set-go-packages).
+require("configs.mermaid").setup()
+map("n", "<leader>mm", "<cmd>MermaidAscii<cr>", { desc = "mermaid ASCII 미리보기 (커서 근처 블록)" })
+
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")

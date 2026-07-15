@@ -42,6 +42,9 @@ ZOXIDE_VERSION="${ZOXIDE_VERSION:-latest}"
 LAZYGIT_VERSION="${LAZYGIT_VERSION:-latest}"
 UV_VERSION="${UV_VERSION:-latest}"
 RUFF_VERSION="${RUFF_VERSION:-latest}"
+# mermaid-ascii: Mermaid → ASCII 렌더 백엔드(정적 Go 바이너리). nvim <leader>mm에서 사용.
+# 두 스코프 모두 프리빌트 릴리스 바이너리를 ~/.local/bin에 번들한다(Go 툴체인 불필요).
+MERMAID_ASCII_VERSION="${MERMAID_ASCII_VERSION:-latest}"
 
 # "full" scope only.
 GO_VERSION="${GO_VERSION:-latest}"   # resolved from go.dev/VERSION when "latest"

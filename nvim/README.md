@@ -109,8 +109,6 @@ nvim/
 | `hop.nvim` | 빠른 커서 이동 | 항시 |
 | `venv-selector.nvim` | Python venv 선택 (Telescope 피커) | `ft = python` / `<leader>cv` |
 | `render-markdown.nvim` | Markdown 리치 프리뷰 | `ft = markdown` |
-| `image.nvim` | 이미지 인라인 렌더링 (Kitty backend) | `ft = markdown` |
-| `diagram.nvim` | Mermaid 다이어그램 인라인 렌더링 | `ft = markdown` |
 | `telescope-fzf-native.nvim` | Telescope 네이티브(C) 정렬기 | `make` 사용 가능 시 (`cond`) |
 
 ### 5.2 Telescope 커스텀 설정

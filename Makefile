@@ -33,17 +33,17 @@ endif
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else ifeq ($(ARCH_LINUX),yes)
 # Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
 # pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
-install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
+install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-mermaid-cli set-hunk set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -246,7 +246,8 @@ endif
 GO_PACKAGES := \
 	golang.org/x/tools/cmd/goimports@latest \
 	mvdan.cc/gofumpt@latest \
-	github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	github.com/golangci/golangci-lint/cmd/golangci-lint@latest \
+	github.com/AlexanderGrooff/mermaid-ascii@latest
 
 set-go-packages:
 	@$(BREW_ENV) GO_BIN="$$(command -v go || echo "$(HOME)/.local/go/bin/go")"; \
@@ -297,14 +298,6 @@ set-rust:
 	fi
 	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
 
-set-mermaid-cli:
-	@$(BREW_ENV) if command -v mmdc > /dev/null 2>&1; then \
-		echo "mermaid-cli already installed"; \
-	else \
-		echo "Installing @mermaid-js/mermaid-cli..."; \
-		npm install -g @mermaid-js/mermaid-cli; \
-	fi
-
 set-hunk:
 ifeq ($(OS),Darwin)
 	@echo "On macOS, hunk is installed via brew (modem-dev/tap/hunk)"
@@ -337,7 +330,7 @@ set-nvim-tools:
 # Symlinks
 # ============================================================
 
-link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-puppeteer
+link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty
 	@echo "All symlinks created."
 
 link-zshrc:
@@ -417,11 +410,6 @@ link-ghostty:
 	@echo "Linking Ghostty config"
 	@mkdir -p $(HOME)/.config/ghostty
 	@ln -sf $(DOTFILES_DIR)/ghostty/config $(HOME)/.config/ghostty/config
-
-link-puppeteer:
-	@echo "Linking puppeteer.json"
-	@mkdir -p $(HOME)/.config
-	@ln -sf $(DOTFILES_DIR)/puppeteer/puppeteer.json $(HOME)/.config/puppeteer.json
 
 # ============================================================
 # Shell configuration
@@ -531,7 +519,7 @@ tmux-reload:
 
 status:
 	@echo "=== Symlinks ==="
-	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.local/bin/tmux-rebalance-column ~/.local/bin/tmux-set-column-widths ~/.config/nvim ~/.config/ghostty/config ~/.config/puppeteer.json; do \
+	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.local/bin/tmux-rebalance-column ~/.local/bin/tmux-set-column-widths ~/.config/nvim ~/.config/ghostty/config; do \
 		if [ -L "$$f" ]; then echo "  OK: $$f -> $$(readlink $$f)"; \
 		elif [ -e "$$f" ]; then echo "  WARN: $$f (not a symlink)"; \
 		else echo "  MISSING: $$f"; fi; \
@@ -580,8 +568,8 @@ unlink:
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-mermaid-cli set-hunk set-nvim-tools \
-        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-puppeteer \
+        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-nvim-tools \
+        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
         clean unlink

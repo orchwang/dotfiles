@@ -35,7 +35,8 @@ build machine (Docker)                  airgapped target (Ubuntu 24+)
 - **standard** (default): NvChad + core LSP (lua/py/ts·js/html·css/markdown) +
   formatters/linters (stylua, prettier, eslint_d, ruff) + DAP (debugpy,
   js-debug-adapter, codelldb) + Node runtime + terminal utils (fzf, fd, bat,
-  ripgrep, btop, lazygit, tmux, starship, zoxide, direnv, zsh plugins).
+  ripgrep, btop, lazygit, tmux, starship, zoxide, direnv, zsh plugins) +
+  mermaid-ascii (`<leader>mm` Mermaid ASCII 렌더 백엔드, 정적 Go 바이너리).
   No Go/Rust compiler toolchains — the `condition = executable "go"` guards in
   `nvim/lua/plugins/init.lua` auto-skip gopls/delve/golangci-lint/goimports/
   gofumpt; rust-analyzer installs (standalone) but rustfmt formatting is absent.

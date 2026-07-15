@@ -139,6 +139,14 @@ install_bins_from_tar \
   "https://github.com/jesseduffield/lazygit/releases/download/${LAZYGIT_TAG}/lazygit_${LAZYGIT_TAG#v}_Linux_${LG_ARCH}.tar.gz" \
   lazygit
 
+log "Installing mermaid-ascii"
+# Mermaid → ASCII 렌더 백엔드. 릴리스 에셋명은 mermaid-ascii_Linux_{x86_64|arm64}.tar.gz
+# (LG_ARCH와 정확히 일치, 버전 미포함). 정적 Go 바이너리라 타깃에서 libc 의존 없이 실행되고,
+# ~/.local/bin에 담기므로 두 스코프 모두 스냅샷·배포·PATH(.zshrc)가 성립한다.
+install_bins_from_tar \
+  "https://github.com/AlexanderGrooff/mermaid-ascii/releases/$(gh_release_path "$MERMAID_ASCII_VERSION")/mermaid-ascii_Linux_${LG_ARCH}.tar.gz" \
+  mermaid-ascii
+
 log "Installing uv + ruff"
 install_bins_from_tar \
   "https://github.com/astral-sh/uv/releases/$(gh_release_path "$UV_VERSION")/uv-${RUST_ARCH}-unknown-linux-gnu.tar.gz" \
