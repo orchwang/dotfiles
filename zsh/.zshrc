@@ -29,6 +29,12 @@ else
     command -v batcat > /dev/null && alias bat='batcat'
 fi
 
+# zsh 자동완성 시스템 초기화.
+# 이걸 호출해야 compsys가 로드되고 `tmux a -t <TAB>` 같은 세션 이름 완성이 동작한다.
+# starship/zoxide 는 compdef 로 완성을 등록만 하므로 compinit 이 먼저 실행돼야 한다.
+[[ "$(uname)" == "Darwin" ]] && fpath=("$(brew --prefix)/share/zsh/site-functions" $fpath)
+autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
+
 export PATH="$HOME/.local/bin:$PATH"
 
 # Go
