@@ -10,6 +10,7 @@ brew "asdf"
 brew "direnv"
 brew "curl"
 brew "fd"
+brew "ripgrep"
 brew "bat"
 brew "eza"
 # neovim — Homebrew rolls forward (0.12+) which breaks nvim-treesitter master.

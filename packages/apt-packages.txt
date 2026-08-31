@@ -10,6 +10,7 @@ build-essential
 # CLI tools
 fzf
 fd-find
+ripgrep
 bat
 nyancat
 btop

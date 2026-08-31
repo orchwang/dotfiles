@@ -15,6 +15,7 @@ base-devel
 # CLI tools
 fzf
 fd
+ripgrep
 bat
 btop
 direnv
