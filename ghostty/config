@@ -20,7 +20,8 @@ window-save-state = always
 # Cursor
 # =========================
 cursor-style = block
-cursor-style-blink = true
+# 깜빡임 비활성화 → 렌더 재그리기 감소 + 시각 피로 완화
+cursor-style-blink = false
 
 # =========================
 # Scrolling
@@ -36,6 +37,14 @@ copy-on-select = false
 # =========================
 # Performance
 # =========================
+# 리가처(liga/calt) 연산이 대형 화면에서 부담될 경우, 위 Font 섹션의
+# font-feature 두 줄을 주석 처리하면 글리프 셰이핑 비용이 줄어듭니다.
+
+# 커서가 있는 창만 완전 불투명, 나머지는 살짝 흐리게 → 무의미한 재그리기 억제 없음, 순수 시각 구분
+unfocused-split-opacity = 0.9
+
+# macOS non-native 전체화면 전환을 부드럽게(화면 튐 방지)
+macos-non-native-fullscreen = visible-menu
 
 # =========================
 # Keybindings (선택)
