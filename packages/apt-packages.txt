@@ -35,3 +35,6 @@ python3-venv
 # Zsh plugins
 zsh-autosuggestions
 zsh-syntax-highlighting
+
+# omp (Oh My Pi coding agent) — not in apt; installed via the set-omp target
+# (curl https://omp.sh/install), same convention as neovim/go.

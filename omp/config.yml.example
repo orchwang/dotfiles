@@ -1,0 +1,12 @@
+# omp (Oh My Pi) user config template.
+#
+# omp manages the live copy at ~/.omp/agent/config.yml itself (it rewrites
+# the file on `omp config set` and guards it with config.yml.lock), so this
+# repo only ships a template. `make set-omp` seeds the live file from here
+# when it is absent, then leaves it alone for omp to manage.
+#
+# Non-secret settings only. Secrets (provider API keys) live in
+# models.yml — see omp/models.yml.example.
+setupVersion: 2
+modelRoles:
+  default: opencode-go/grok-4.6:high

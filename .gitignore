@@ -9,6 +9,9 @@ Brewfile_others.lock.json
 # Secrets / local overrides
 .zshrc.local
 .claude/settings.local.json
+# omp: only the *.example templates are tracked; live copies hold API keys
+omp/config.yml
+omp/models.yml
 
 # offline-devkit build artifacts (large bundles + staging)
 offline-devkit/dist/

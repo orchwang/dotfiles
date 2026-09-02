@@ -1,0 +1,60 @@
+# Restricted Use License for datamaker-kr Organization
+
+Copyright (c) 2026 datamaker-kr Organization
+
+## Terms and Conditions
+
+### 1. Grant of License
+
+This software and associated documentation files (the "Software") are licensed exclusively to members of the datamaker-kr GitHub organization ("Authorized Users"). By using this Software, you agree to be bound by the terms of this license.
+
+### 2. Permitted Use
+
+Permission is hereby granted to Authorized Users to use, copy, modify, merge, and distribute copies of the Software within the scope of the datamaker-kr organization, subject to the following conditions:
+
+- **Authorized Users Only**: Only current members of the datamaker-kr GitHub organization are authorized to use this Software.
+- **Internal Use**: The Software may only be used for internal projects and purposes within the datamaker-kr organization.
+- **Attribution Required**: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+### 3. Restrictions
+
+The following actions are expressly prohibited:
+
+- **No Public Distribution**: The Software may not be distributed, published, or made available to any individual or entity outside the datamaker-kr organization without explicit written permission.
+- **No Commercial Use Outside Organization**: The Software may not be used for commercial purposes by entities outside the datamaker-kr organization.
+- **No Sublicensing**: Authorized Users may not sublicense the Software to third parties outside the organization.
+- **No Transfer**: Rights granted under this license are non-transferable and terminate upon the user ceasing to be a member of the datamaker-kr organization.
+
+### 4. Contributions
+
+Any contributions made to this Software by Authorized Users shall be subject to the same license terms and become the property of the datamaker-kr organization.
+
+### 5. Target Projects
+
+This Software is specifically designed for use with the following projects within the datamaker-kr organization:
+
+- synapse-backend
+- synapse-workspace
+- synapse-annotator
+- Related projects within the organization
+
+### 6. Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### 7. Termination
+
+This license automatically terminates if you cease to be a member of the datamaker-kr GitHub organization or if you violate any terms of this license. Upon termination, you must destroy all copies of the Software in your possession.
+
+### 8. Governing Law
+
+This license shall be governed by and construed in accordance with the laws of the Republic of Korea.
+
+---
+
+## Contact
+
+For questions regarding this license or to request special permissions, please contact the datamaker-kr organization administrators through GitHub.
+
+**Organization**: https://github.com/datamaker-kr
+**Repository**: https://github.com/datamaker-kr/synapse-claude-marketplace

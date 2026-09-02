@@ -35,6 +35,8 @@ brew "node"
 brew "yarn"
 brew "uv"
 brew "ruff"
+# omp (Oh My Pi coding agent) — intentionally NOT here so `make install` stays
+# lean; install on demand with `make set-omp` (brew install can1357/tap/omp).
 
 # Applications
 brew "mas"

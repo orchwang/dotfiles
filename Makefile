@@ -310,6 +310,56 @@ else
 	fi
 endif
 
+# omp (Oh My Pi) coding agent — https://github.com/can1357/oh-my-pi
+# Standalone: NOT part of `make install`. Install it on demand with
+#   make set-omp          # binary + seed config
+#   make omp              # binary + config + skills/subagents
+# The binary self-installs from Homebrew (can1357/tap/omp) on macOS and from
+# omp.sh on Linux. omp owns its ~/.omp/agent state (sessions, DBs, logs), so we
+# only seed the two files with shareable shape: config.yml (non-secret) and
+# models.yml (provider API keys — the ~/.zshrc.local analog). Both are copied
+# from omp/*.example only when absent, never committed.
+set-omp:
+ifeq ($(OS),Darwin)
+	@$(BREW_ENV) if command -v omp > /dev/null 2>&1; then \
+		echo "omp already installed: $$(omp --version 2>/dev/null | head -1)"; \
+	else \
+		echo "Installing omp via Homebrew (can1357/tap/omp)..."; \
+		brew install can1357/tap/omp; \
+	fi
+else
+	@if command -v omp > /dev/null 2>&1; then \
+		echo "omp already installed: $$(omp --version 2>/dev/null | head -1)"; \
+	else \
+		echo "Installing omp from omp.sh..."; \
+		curl -fsSL https://omp.sh/install | sh; \
+	fi
+endif
+	@AGENT_DIR="$(HOME)/.omp/agent"; \
+	mkdir -p "$$AGENT_DIR"; \
+	if [ -f "$$AGENT_DIR/models.yml" ]; then \
+		echo "  ~/.omp/agent/models.yml exists; leaving machine-local secrets untouched"; \
+	else \
+		cp $(DOTFILES_DIR)/omp/models.yml.example "$$AGENT_DIR/models.yml"; \
+		echo "  Seeded ~/.omp/agent/models.yml from example — add your API keys (git-ignored, machine-local)"; \
+	fi; \
+	if [ -f "$$AGENT_DIR/config.yml" ]; then \
+		echo "  ~/.omp/agent/config.yml exists; leaving it for omp to manage"; \
+	else \
+		cp $(DOTFILES_DIR)/omp/config.yml.example "$$AGENT_DIR/config.yml"; \
+		echo "  Seeded ~/.omp/agent/config.yml from example"; \
+	fi
+
+# omp skills & subagents — symlinks the repo-managed originals under
+# omp/skills/ and omp/agents/ into ~/.omp/agent/{skills,agents} via
+# omp/install-skills.sh. Standalone, like set-omp (not in `make install`).
+set-omp-skills:
+	@bash $(DOTFILES_DIR)/omp/install-skills.sh
+
+# Convenience: full omp setup (binary + seeded config + skills/subagents).
+omp: set-omp set-omp-skills
+	@echo "omp ready. Add API keys to ~/.omp/agent/models.yml, then run: omp"
+
 set-nvim-tools:
 	@$(BREW_ENV) [ -f "$(HOME)/.cargo/env" ] && . "$(HOME)/.cargo/env"; \
 	export PATH="$(HOME)/.local/bin:$(HOME)/go/bin:$$PATH"; \
@@ -526,7 +576,7 @@ status:
 	done
 	@echo ""
 	@echo "=== Tool versions ==="
-	@for cmd in zsh nvim starship zoxide uv ruff git node; do \
+	@for cmd in zsh nvim starship zoxide uv ruff git node omp; do \
 		if command -v $$cmd > /dev/null 2>&1; then \
 			ver=$$($$cmd --version 2>/dev/null | head -1); \
 			echo "  $$cmd: $$ver"; \
@@ -535,6 +585,9 @@ status:
 	@if command -v tmux > /dev/null 2>&1; then \
 		echo "  tmux: $$(tmux -V)"; \
 	else echo "  tmux: not installed"; fi
+	@if [ -f "$(HOME)/.omp/agent/models.yml" ]; then \
+		echo "  omp models.yml: present (machine-local secrets)"; \
+	else echo "  omp models.yml: MISSING (run make set-omp)"; fi
 
 update:
 	@echo "Pulling latest dotfiles..."
@@ -568,7 +621,7 @@ unlink:
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-omp set-omp-skills omp set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \

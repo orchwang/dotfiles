@@ -44,6 +44,10 @@ command -v go > /dev/null && export PATH="$PATH:$(go env GOPATH)/bin"
 # Rust
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
+# Editor — used by git, and by omp for its external editor ($VISUAL then $EDITOR)
+export EDITOR='nvim'
+export VISUAL='nvim'
+
 alias ll='ls -alF'
 
 # tmux: 빈 `tmux`는 이름 있는 앵커 세션 'main'으로 attach-or-create 한다.

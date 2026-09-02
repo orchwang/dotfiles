@@ -148,3 +148,49 @@ vertical axis.
 Machine-specific secrets (tokens, SSH agent, private registries) go in
 `~/.zshrc.local`, which is sourced at the end of `.zshrc` and is
 git-ignored.
+
+The [omp](https://github.com/can1357/oh-my-pi) coding agent follows the same
+pattern. Its provider API keys live in `~/.omp/agent/models.yml` — the
+`~/.zshrc.local` analog for omp — and are never committed. The repo ships
+`omp/config.yml.example` and `omp/models.yml.example`.
+
+omp is **not** part of `make install` — it is a separate, on-demand setup:
+
+```sh
+make set-omp          # install the binary + seed config/models from examples
+make set-omp-skills   # install the repo-managed skills & subagents
+make omp              # all of the above in one go
+```
+
+`make set-omp` installs omp (Homebrew `can1357/tap/omp` on macOS,
+`omp.sh/install` on Linux) and seeds the live files from the templates only
+when absent, so omp keeps managing its own state under `~/.omp/agent`. Fill in
+your keys in `~/.omp/agent/models.yml` afterwards.
+
+### omp skills & subagents
+
+The skill and subagent originals are managed directly in this repo under
+`omp/skills/<name>/SKILL.md` and `omp/agents/<name>/SKILL.md`. `make
+set-omp-skills` (via `omp/install-skills.sh`) symlinks each into omp's user
+discovery paths — `omp/skills/<name>/` → `~/.omp/agent/skills/<name>` and
+`omp/agents/<name>/` → `~/.omp/agent/agents/<name>` — so omp surfaces them in
+every session and edits in the repo take effect in the next session. It is
+idempotent (re-runs re-point the symlinks) and never touches omp's isolated
+`managed-skills` store; non-directory files at those levels (`PROVENANCE.md`,
+`LICENSE.*`) are ignored.
+
+The repo ships the Datamaker dev-team SDD workflow (skills `init-specs`,
+`specify-with-requirements`, `plan-with-specs`, `plan-with-requirements`,
+`update-requirements`, `sync-to-jira`; subagent `spec-manager`) — vendored from
+the `sdd-helper` plugin, see `omp/skills/PROVENANCE.md`. Add or edit skills
+right in `omp/skills/` and re-run `make set-omp-skills`.
+
+The same target also symlinks two repo-managed system-prompt files into
+`~/.omp/agent/`:
+
+- `omp/PERSONALITY.md` → replaces omp's personality block (tone & style).
+- `omp/APPEND_SYSTEM.md` → appended to the system prompt every session
+  (standing instructions). Per-project rules go in that project's
+  `.omp/APPEND_SYSTEM.md`, which omp also appends.
+
+Both take effect in the next omp session; edit them in `omp/` and re-run.

@@ -1,0 +1,17 @@
+# omp (Oh My Pi) provider/model template — the ~/.zshrc.local analog for omp.
+#
+# The live copy at ~/.omp/agent/models.yml holds plaintext provider API keys
+# and MUST NOT be committed. `make set-omp` copies this template to the live
+# path only when it is absent; fill in your real providers/keys there afterwards.
+#
+# All values below are placeholders — replace baseUrl, apiKey, and model ids
+# with your own.
+providers:
+  example-provider:
+    baseUrl: https://your-llm-endpoint.example.com/
+    api: openai-completions
+    apiKey: sk-REPLACE_ME
+    auth: none
+    models:
+      - id: your-model-id
+      - id: your-other-model-id
