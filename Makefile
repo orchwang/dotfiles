@@ -33,17 +33,17 @@ endif
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else ifeq ($(ARCH_LINUX),yes)
 # Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
 # pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
-install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
+install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-hunk set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -310,6 +310,22 @@ else
 	fi
 endif
 
+# herdr (agent multiplexer) — https://herdr.dev
+# macOS: Homebrew core formula (Brewfile). Linux (Ubuntu + Arch): not in
+# apt/pacman, so use the official installer, which drops a checksum-verified
+# release binary into ~/.local/bin/herdr (same convention as nvim/lazygit).
+set-herdr:
+ifeq ($(OS),Darwin)
+	@echo "On macOS, herdr is installed via brew (herdr)"
+else
+	@if command -v herdr > /dev/null 2>&1 || [ -x "$(HOME)/.local/bin/herdr" ]; then \
+		echo "herdr already installed"; \
+	else \
+		echo "Installing herdr from herdr.dev..."; \
+		curl -fsSL https://herdr.dev/install.sh | HERDR_INSTALL_DIR="$(HOME)/.local/bin" sh; \
+	fi
+endif
+
 # omp (Oh My Pi) coding agent — https://github.com/can1357/oh-my-pi
 # Standalone: NOT part of `make install`. Install it on demand with
 #   make set-omp          # binary + seed config
@@ -380,7 +396,7 @@ set-nvim-tools:
 # Symlinks
 # ============================================================
 
-link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty
+link: link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-herdr
 	@echo "All symlinks created."
 
 link-zshrc:
@@ -460,6 +476,11 @@ link-ghostty:
 	@echo "Linking Ghostty config"
 	@mkdir -p $(HOME)/.config/ghostty
 	@ln -sf $(DOTFILES_DIR)/ghostty/config $(HOME)/.config/ghostty/config
+
+link-herdr:
+	@echo "Linking herdr config"
+	@mkdir -p $(HOME)/.config/herdr
+	@ln -sf $(DOTFILES_DIR)/herdr/config.toml $(HOME)/.config/herdr/config.toml
 
 # ============================================================
 # Shell configuration
@@ -569,14 +590,14 @@ tmux-reload:
 
 status:
 	@echo "=== Symlinks ==="
-	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.local/bin/tmux-rebalance-column ~/.local/bin/tmux-set-column-widths ~/.config/nvim ~/.config/ghostty/config; do \
+	@for f in ~/.zshrc ~/.config/starship.toml ~/.dircolors ~/.gitconfig ~/.tmux.conf ~/.local/bin/tmux-layout ~/.local/bin/tmux-rebalance-column ~/.local/bin/tmux-set-column-widths ~/.config/nvim ~/.config/ghostty/config ~/.config/herdr/config.toml; do \
 		if [ -L "$$f" ]; then echo "  OK: $$f -> $$(readlink $$f)"; \
 		elif [ -e "$$f" ]; then echo "  WARN: $$f (not a symlink)"; \
 		else echo "  MISSING: $$f"; fi; \
 	done
 	@echo ""
 	@echo "=== Tool versions ==="
-	@for cmd in zsh nvim starship zoxide uv ruff git node omp; do \
+	@for cmd in zsh nvim starship zoxide uv ruff git node herdr omp; do \
 		if command -v $$cmd > /dev/null 2>&1; then \
 			ver=$$($$cmd --version 2>/dev/null | head -1); \
 			echo "  $$cmd: $$ver"; \
@@ -618,11 +639,12 @@ unlink:
 	@rm -f $(HOME)/.local/bin/tmux-set-column-widths
 	@rm -f $(HOME)/.config/nvim
 	@rm -f $(HOME)/.config/ghostty/config
+	@rm -f $(HOME)/.config/herdr/config.toml
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust \
-        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-omp set-omp-skills omp set-nvim-tools \
-        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty \
+        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-herdr set-omp set-omp-skills omp set-nvim-tools \
+        link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-herdr \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \
         clean unlink

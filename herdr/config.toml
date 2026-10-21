@@ -1,0 +1,10 @@
+# herdr config — https://herdr.dev/docs/configuration/
+# Symlinked to ~/.config/herdr/config.toml by `make link-herdr`.
+# herdr rewrites this file in place (settings UI, onboarding); it follows the
+# symlink, so such changes show up as a git diff here.
+# Full defaults: `herdr --default-config`. Apply edits: prefix+shift+r.
+
+[keys]
+# Match tmux muscle memory (tmux/.tmux.conf uses C-a). Everything else stays
+# on herdr defaults for now.
+prefix = "ctrl+a"

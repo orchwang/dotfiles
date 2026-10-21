@@ -43,5 +43,8 @@ lua51
 zsh-autosuggestions
 zsh-syntax-highlighting
 
+# herdr (agent multiplexer) — not in the Arch repos; installed via the set-herdr
+# target (curl https://herdr.dev/install.sh → ~/.local/bin/herdr).
+
 # omp (Oh My Pi coding agent) — not in the Arch repos; installed via the
 # set-omp target (curl https://omp.sh/install), same convention as neovim.

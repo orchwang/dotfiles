@@ -20,6 +20,7 @@ brew "git"
 brew "gitui"
 brew "git-delta"
 brew "modem-dev/tap/hunk"
+brew "herdr"  # agent multiplexer — https://herdr.dev
 brew "nyancat"
 brew "lazygit"
 brew "btop"
