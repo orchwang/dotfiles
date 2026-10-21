@@ -75,7 +75,8 @@ nvim/
 | CSS | `cssls` | Mason |
 | Python | `pyright` | Mason |
 | Python (lint) | `ruff` | 시스템 (Homebrew / uv) |
-| Rust | `rust_analyzer` | Mason |
+| Rust | `rust-analyzer` (rustaceanvim이 구동) | rustup component (`make set-rust`) |
+| TOML | `taplo` | Mason |
 | Go | `gopls` | Mason (Go 설치 시) |
 | JS/TS | `ts_ls` | Mason |
 | Markdown | `marksman` | Mason |
@@ -93,6 +94,7 @@ nvim/
 | Markdown | `prettier` |
 | Go | `goimports` + `gofumpt` |
 | Rust | `rustfmt` |
+| TOML | `taplo` |
 
 저장 시 자동 포맷(`format_on_save`)이 활성화되어 있으며, 타임아웃은 500ms입니다.
 
@@ -110,6 +112,8 @@ nvim/
 | `venv-selector.nvim` | Python venv 선택 (Telescope 피커) | `ft = python` / `<leader>cv` |
 | `render-markdown.nvim` | Markdown 리치 프리뷰 | `ft = markdown` |
 | `telescope-fzf-native.nvim` | Telescope 네이티브(C) 정렬기 | `make` 사용 가능 시 (`cond`) |
+| `rustaceanvim` (`^8`) | rust-analyzer 클라이언트 + Rust 전용 액션 | 자체 lazy (`ft = rust`) |
+| `crates.nvim` (`^0.7`) | `Cargo.toml` 크레이트 버전 힌트·완성·업데이트 | `Cargo.toml` 열 때 |
 
 ### 5.2 Telescope 커스텀 설정
 
@@ -179,11 +183,39 @@ nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신�
   - `<leader>cv`로 수동 선택 가능
   - 선택한 venv는 프로젝트별 캐시 및 자동 복원
 
-## 7. Debugging (nvim-dap)
+## 7. Rust 개발 환경
+
+툴체인은 `make set-rust` / `make set-rust-tools`로 설치하고 `make update-rust`로 갱신합니다.
+
+- rustup components: `rustfmt`, `clippy`, `rust-analyzer`, `rust-src`
+  - rust-analyzer는 Mason이 아니라 **rustup 버전**을 사용한다 (툴체인과 버전 일치, `rust-src`로 std 인덱싱).
+    Mason에 rust-analyzer가 남아 있으면 nvim PATH 앞쪽이라 rustup 버전을 가리므로 `:MasonUninstall rust-analyzer`.
+- cargo 도구 (`cargo-binstall`로 바이너리 설치): `cargo-nextest`, `bacon`, `cargo-edit`, `cargo-expand`, `cargo-audit`
+
+Neovim 구성:
+- `rustaceanvim`이 rust-analyzer를 직접 띄운다. `configs/lspconfig.lua`에 `rust_analyzer`를 **추가하지 말 것** (클라이언트 중복).
+  - `^8` 고정: `^9`는 Neovim 0.12+ 필요 (이 저장소는 0.11.x 고정).
+  - 저장 시 `cargo check` 대신 `clippy` 실행 (`check.command = "clippy"`).
+  - 디버깅: Mason `codelldb`를 자동 감지 → `<leader>Rd`로 cargo 타깃 선택 후 디버그.
+- `crates.nvim`: `Cargo.toml`에서 버전 힌트·완성, code action(`<leader>ca`)으로 update/upgrade.
+- `taplo`: TOML LSP + 포매터. Treesitter: `rust`, `toml`.
+
+Rust 버퍼 키맵 (`configs/rust.lua`, NvChad의 `<leader>r*`와 겹치지 않게 `<leader>R*`):
+
+| 키 | 동작 |
+|----|------|
+| `K` | hover actions |
+| `<leader>ca` | code action (rust-analyzer 그룹) |
+| `<leader>Rr` / `<leader>Rt` / `<leader>Rd` | runnables / testables / debuggables |
+| `<leader>Re` | 매크로 확장 |
+| `<leader>Rx` / `<leader>RD` | 에러 설명 / 진단 렌더 |
+| `<leader>Rc` / `<leader>Rp` / `<leader>Ro` | `Cargo.toml` 열기 / 부모 모듈 / docs.rs |
+
+## 8. Debugging (nvim-dap)
 
 이 설정은 `launch.json`을 읽지 않고, Lua 기반 `dap.configurations`를 표준으로 사용합니다.
 
-### 7.1 Debugging 스택
+### 8.1 Debugging 스택
 
 - `mfussenegger/nvim-dap`
 - `rcarriga/nvim-dap-ui`
@@ -192,7 +224,7 @@ nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신�
 - `mxsdev/nvim-dap-vscode-js`
 - `WhoIsSethDaniel/mason-tool-installer.nvim` (`js-debug-adapter` 설치용)
 
-### 7.2 지원 언어
+### 8.2 지원 언어
 
 - Python (`debugpy`)
 - JavaScript (`pwa-node`, `js-debug-adapter`)
@@ -200,7 +232,7 @@ nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신�
 - Go (`delve`)
 - Rust (`codelldb`)
 
-### 7.3 기본 디버그 키맵
+### 8.3 기본 디버그 키맵
 
 로딩 방식:
 - DAP는 lazy-load이며 아래 키 입력 또는 DAP 명령 실행 시 로드됨
@@ -221,7 +253,7 @@ nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신�
 - 디버그 시작 시 `dap-ui` 자동 open
 - 디버그 종료/exit 시 `dap-ui` 자동 close
 
-### 7.4 언어별 기본 Launch 구성
+### 8.4 언어별 기본 Launch 구성
 
 정의 위치: `lua/configs/dap.lua`
 
@@ -237,7 +269,7 @@ nvim 안에서 lazygit을 플로팅 창으로 띄운다. **snacks.nvim 등 신�
 - Rust
   - 실행 바이너리 경로 입력 후 launch
 
-### 7.5 프로젝트별 DAP 설정
+### 8.5 프로젝트별 DAP 설정
 
 프로젝트 루트(`.git` 기준)에서 아래 파일을 자동 로드합니다.
 
@@ -285,7 +317,7 @@ return {
 }
 ```
 
-### 7.6 Debugging 검증 체크리스트
+### 8.6 Debugging 검증 체크리스트
 
 1. 대상 파일에서 브레이크포인트(`F9`) 설정
 2. `F5`로 디버그 시작
@@ -293,7 +325,7 @@ return {
 4. `F10/F11/F12` step 동작 확인
 5. 종료 시 `dap-ui` 자동 닫힘 확인
 
-### 7.7 현재 범위와 Future Feature
+### 8.7 현재 범위와 Future Feature
 
 현재 범위:
 - 애플리케이션/스크립트 단위 디버깅
@@ -301,7 +333,7 @@ return {
 Future Feature:
 - Python test case 단위 디버깅 (`neotest` + DAP 전략)
 
-## 8. 트러블슈팅
+## 9. 트러블슈팅
 
 - JS/TS 디버깅이 안 열리면:
   - `node --version`, `npm --version` 확인 (Linux 필수 런타임)

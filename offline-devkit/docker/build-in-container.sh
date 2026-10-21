@@ -167,7 +167,7 @@ if [ "$SCOPE" = "full" ]; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   # shellcheck source=/dev/null
   . "$HOME/.cargo/env"
-  rustup component add rustfmt clippy
+  rustup component add rustfmt clippy rust-analyzer rust-src
 fi
 
 # ===========================================================================

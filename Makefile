@@ -33,17 +33,17 @@ endif
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else ifeq ($(ARCH_LINUX),yes)
 # Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
 # pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
-install: set-pacman-packages set-neovim set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-pacman-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -290,13 +290,41 @@ else
 	@echo "install-others: only available on macOS (uses Brewfile)"
 endif
 
+# rust-analyzer + rust-src come from rustup (not Mason) so the language server
+# always matches the active toolchain and can index the std library sources.
+RUST_COMPONENTS := rustfmt clippy rust-analyzer rust-src
+
 set-rust:
 	@if command -v rustup > /dev/null 2>&1; then \
 		echo "Rustup already installed"; \
 	else \
 		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
 	fi
-	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add rustfmt clippy
+	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup component add $(RUST_COMPONENTS)
+
+# Cargo dev tools, installed as prebuilt binaries via cargo-binstall (falls
+# back to building from source when no binary is published). Re-running
+# skips tools that are already current.
+#   cargo-nextest  faster test runner (also used by rustaceanvim testables)
+#   bacon          background check/clippy/test watcher (cargo-watch successor)
+#   cargo-edit     cargo upgrade / set-version (cargo add/rm are built in)
+#   cargo-expand   show macro-expanded source
+#   cargo-audit    scan Cargo.lock against the RustSec advisory DB
+RUST_TOOLS := cargo-nextest bacon cargo-edit cargo-expand cargo-audit
+
+set-rust-tools: set-rust
+	@. "$(HOME)/.cargo/env" 2>/dev/null; \
+	if ! command -v cargo-binstall > /dev/null 2>&1; then \
+		echo "Installing cargo-binstall..."; \
+		curl -L --proto '=https' --tlsv1.2 -sSf \
+			https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; \
+	fi; \
+	cargo binstall --no-confirm $(RUST_TOOLS)
+
+# Update the stable toolchain (+ its components) and bump the cargo tools.
+update-rust:
+	@. "$(HOME)/.cargo/env" 2>/dev/null; rustup self update 2>/dev/null || true; rustup update stable
+	@. "$(HOME)/.cargo/env" 2>/dev/null; cargo binstall --no-confirm cargo-binstall $(RUST_TOOLS)
 
 set-hunk:
 ifeq ($(OS),Darwin)
@@ -529,7 +557,7 @@ check-plugins:
 		if [ ! -f "$$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo direnv; do \
+		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo rust-analyzer direnv; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -546,7 +574,7 @@ check-plugins:
 		done; \
 		if [ $$sh_found -eq 1 ]; then echo "  OK: zsh-syntax-highlighting"; \
 		else echo "  MISSING: zsh-syntax-highlighting"; missing=1; fi; \
-		for cmd in starship zoxide ls dircolors uv ruff rustc cargo direnv; do \
+		for cmd in starship zoxide ls dircolors uv ruff rustc cargo rust-analyzer direnv; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -642,7 +670,7 @@ unlink:
 	@rm -f $(HOME)/.config/herdr/config.toml
 	@rm -f $(HOME)/.config/puppeteer.json
 
-.PHONY: install install-nvchad install-others set-rust \
+.PHONY: install install-nvchad install-others set-rust set-rust-tools update-rust \
         set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-herdr set-omp set-omp-skills omp set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-herdr \
         set-default-shell check-plugins \

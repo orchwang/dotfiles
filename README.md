@@ -75,7 +75,9 @@ the `offline-devkit` Claude Code skill.
 | `make set-pacman-packages` | --    | --     | yes     | Install pacman packages              |
 | `make set-default-shell`   | yes   | yes    | yes     | Set zsh as default shell             |
 | `make check-plugins`       | yes   | yes    | yes     | Verify plugins/tools are installed   |
-| `make set-rust`            | yes   | yes    | yes     | Install Rust toolchain (rustup + rustfmt + clippy) |
+| `make set-rust`            | yes   | yes    | yes     | Install Rust toolchain (rustup + rustfmt, clippy, rust-analyzer, rust-src) |
+| `make set-rust-tools`      | yes   | yes    | yes     | Install cargo tools via cargo-binstall (nextest, bacon, cargo-edit, cargo-expand, cargo-audit) |
+| `make update-rust`         | yes   | yes    | yes     | `rustup update stable` + bump the cargo tools |
 | `make set-herdr`           | brew  | yes    | yes     | Install [herdr](https://herdr.dev) agent multiplexer (part of `make install`) |
 | `make clean`               | yes   | --     | --      | Remove unlisted Homebrew packages    |
 | `make unlink`              | yes   | yes    | yes     | Remove all symlinks                  |

@@ -59,7 +59,7 @@ docker run --privileged --rm tonistiigi/binfmt --install all
 | Scope | Contents |
 |---|---|
 | `standard` (default) | NvChad + core LSP (lua/py/ts·js/html·css/markdown) + formatters/linters (stylua, prettier, eslint_d, ruff) + DAP (debugpy, js-debug-adapter, codelldb) + Node runtime + terminal utils (fzf, fd, bat, ripgrep, btop, lazygit, tmux, starship, zoxide, direnv, zsh plugins) + mermaid-ascii (`<leader>mm` Mermaid ASCII 렌더 백엔드, 정적 Go 바이너리). No Go/Rust compilers. |
-| `full` | `standard` + Go + rustup, which flips the `condition = executable "go"` guards in `nvim/lua/plugins/init.lua` on (gopls, delve, golangci-lint, goimports, gofumpt) and adds the Rust toolchain (rustfmt, clippy). |
+| `full` | `standard` + Go + rustup, which flips the `condition = executable "go"` guards in `nvim/lua/plugins/init.lua` on (gopls, delve, golangci-lint, goimports, gofumpt) and adds the Rust toolchain (rustfmt, clippy, rust-analyzer, rust-src). |
 
 ## Install (on the airgapped target)
 

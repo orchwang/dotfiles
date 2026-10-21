@@ -44,7 +44,9 @@ return {
         "css-lsp",
         "pyright",
         -- ruff LSP is provided by system ruff (uv on Linux, Homebrew on macOS).
-        "rust-analyzer",
+        -- rust-analyzer is a rustup component (make set-rust), not Mason, so it
+        -- matches the toolchain; rustaceanvim drives it.
+        "taplo",
         { "gopls", condition = function()
           return vim.fn.executable "go" == 1
         end },
@@ -184,6 +186,34 @@ return {
     end,
   },
 
+  -- Rust: rustaceanvim owns the rust-analyzer client (do NOT also enable
+  -- rust_analyzer in configs/lspconfig.lua). ^8 is the last major supporting
+  -- Neovim 0.11 (^9 needs 0.12; we pin 0.11.x in the Makefile).
+  {
+    "mrcjkb/rustaceanvim",
+    version = "^8",
+    lazy = false, -- the plugin lazy-loads itself on ft=rust
+    init = function()
+      require "configs.rust"
+    end,
+  },
+
+  -- Cargo.toml: crate version hints, completion and update/upgrade code
+  -- actions via an in-process LSP (works with NvChad's nvim-cmp lsp source).
+  {
+    "saecki/crates.nvim",
+    version = "^0.7",
+    event = { "BufRead Cargo.toml" },
+    opts = {
+      lsp = {
+        enabled = true,
+        actions = true,
+        completion = true,
+        hover = true,
+      },
+    },
+  },
+
   {
     "smoka7/hop.nvim",
     version = "*",
@@ -196,7 +226,7 @@ return {
     "nvim-treesitter/nvim-treesitter",
     opts_extend = { "ensure_installed" },
     opts = {
-      ensure_installed = { "markdown", "markdown_inline" },
+      ensure_installed = { "markdown", "markdown_inline", "rust", "toml" },
     },
   },
 

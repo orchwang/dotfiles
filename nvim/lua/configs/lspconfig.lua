@@ -5,7 +5,8 @@ local servers = {
   "cssls",
   "pyright",
   "ruff",
-  "rust_analyzer",
+  -- rust_analyzer is started by rustaceanvim (configs/rust.lua), not here.
+  "taplo",
   "gopls",
   "ts_ls",
   "marksman",

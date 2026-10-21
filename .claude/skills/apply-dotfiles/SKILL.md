@@ -31,7 +31,9 @@ uname -s
 | `make set-packages` | yes | -- | Install Homebrew packages from Brewfile |
 | `make set-apt-packages` | -- | yes | Install apt packages from apt-packages.txt |
 | `make check-plugins` | yes | yes | Verify all plugins/tools are installed |
-| `make set-rust` | yes | yes | Install Rust toolchain (rustup + rustfmt + clippy) |
+| `make set-rust` | yes | yes | Install Rust toolchain (rustup + rustfmt, clippy, rust-analyzer, rust-src) |
+| `make set-rust-tools` | yes | yes | Install cargo tools via cargo-binstall (nextest, bacon, cargo-edit, cargo-expand, cargo-audit) |
+| `make update-rust` | yes | yes | Update stable toolchain + cargo tools |
 | `make install-others` | yes | -- | Install extra Homebrew packages (BrewFile.others) |
 | `make clean` | yes | -- | Remove unlisted Homebrew packages |
 | `make unlink` | yes | yes | Remove all symlinks |

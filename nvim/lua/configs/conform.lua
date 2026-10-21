@@ -9,6 +9,7 @@ local options = {
     go = { "goimports", "gofumpt" },
     json = { "prettier" },
     rust = { "rustfmt" },
+    toml = { "taplo" },
     markdown = { "prettier" },
   },
 
