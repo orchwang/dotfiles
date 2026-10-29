@@ -1,3 +1,4 @@
+onboarding = false
 # herdr config — https://herdr.dev/docs/configuration/
 # Symlinked to ~/.config/herdr/config.toml by `make link-herdr`.
 # herdr rewrites this file in place (settings UI, onboarding); it follows the
