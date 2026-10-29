@@ -21,6 +21,8 @@ brew "gitui"
 brew "git-delta"
 brew "modem-dev/tap/hunk"
 brew "herdr"  # agent multiplexer — https://herdr.dev
+# util-linux is keg-only; `make set-setsid` links just setsid into ~/.local/bin
+brew "util-linux"
 brew "nyancat"
 brew "lazygit"
 brew "btop"
@@ -34,6 +36,8 @@ cask "docker-desktop"
 brew "go"
 brew "node"
 brew "yarn"
+brew "bun"
+brew "flyctl"  # provides `fly` and `flyctl`
 brew "uv"
 brew "ruff"
 # omp (Oh My Pi coding agent) — intentionally NOT here so `make install` stays

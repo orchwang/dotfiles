@@ -33,17 +33,17 @@ endif
 # ============================================================
 
 ifeq ($(OS),Darwin)
-install: set-xcode set-brew set-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-xcode set-brew set-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-setsid set-bun set-fly set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else ifeq ($(ARCH_LINUX),yes)
 # Arch/Omarchy: starship, zoxide, uv, ruff, lazygit and go all come from
 # pacman (set-pacman-packages), so the Debian-only curl installers are omitted.
-install: set-pacman-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-pacman-packages set-neovim set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-setsid set-bun set-fly set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 else
-install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-nvim-tools set-default-shell
+install: set-apt-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-rust set-rust-tools set-go-packages set-tmux-plugins link set-hunk set-herdr set-setsid set-bun set-fly set-nvim-tools set-default-shell
 	@echo "Installation complete. Start zsh now: exec zsh  (or open a new terminal / re-login)"
 	@echo "If tmux is running, reload config: make tmux-reload"
 endif
@@ -307,10 +307,11 @@ set-rust:
 # skips tools that are already current.
 #   cargo-nextest  faster test runner (also used by rustaceanvim testables)
 #   bacon          background check/clippy/test watcher (cargo-watch successor)
+#   cargo-watch    re-run any cargo command on file change (cargo watch -x run)
 #   cargo-edit     cargo upgrade / set-version (cargo add/rm are built in)
 #   cargo-expand   show macro-expanded source
 #   cargo-audit    scan Cargo.lock against the RustSec advisory DB
-RUST_TOOLS := cargo-nextest bacon cargo-edit cargo-expand cargo-audit
+RUST_TOOLS := cargo-nextest bacon cargo-watch cargo-edit cargo-expand cargo-audit
 
 set-rust-tools: set-rust
 	@. "$(HOME)/.cargo/env" 2>/dev/null; \
@@ -351,6 +352,65 @@ else
 	else \
 		echo "Installing herdr from herdr.dev..."; \
 		curl -fsSL https://herdr.dev/install.sh | HERDR_INSTALL_DIR="$(HOME)/.local/bin" sh; \
+	fi
+endif
+
+# setsid (run a program in a new session, detached from the terminal).
+# Linux: part of util-linux (always present; listed in apt/pacman packages).
+# macOS: Homebrew util-linux is keg-only, and putting its whole bin/ on PATH
+# would shadow BSD tools (cal, hexdump, more, ...). Link only setsid into
+# ~/.local/bin instead.
+set-setsid:
+ifeq ($(OS),Darwin)
+	@$(BREW_ENV) UL_PREFIX="$$(brew --prefix util-linux 2>/dev/null)"; \
+	if [ ! -x "$$UL_PREFIX/bin/setsid" ]; then \
+		echo "Installing util-linux via brew (for setsid)..."; \
+		brew install util-linux; \
+		UL_PREFIX="$$(brew --prefix util-linux)"; \
+	fi; \
+	mkdir -p $(HOME)/.local/bin; \
+	ln -sf "$$UL_PREFIX/bin/setsid" $(HOME)/.local/bin/setsid; \
+	echo "setsid linked: ~/.local/bin/setsid -> $$UL_PREFIX/bin/setsid"
+else
+	@if command -v setsid > /dev/null 2>&1; then \
+		echo "setsid already installed ($$(command -v setsid))"; \
+	else \
+		echo "setsid not found — install util-linux with your package manager."; \
+		exit 1; \
+	fi
+endif
+
+# bun (JS runtime / package manager) — https://bun.sh
+# macOS: Homebrew core formula (Brewfile). Linux: official installer into
+# ~/.bun/bin (PATH set in .zshrc). bun is put on PATH for the installer so it
+# takes its "already on PATH" exit and never appends to ~/.zshrc (a symlink
+# into this repo).
+set-bun:
+ifeq ($(OS),Darwin)
+	@echo "On macOS, bun is installed via brew (bun)"
+else
+	@if command -v bun > /dev/null 2>&1 || [ -x "$(HOME)/.bun/bin/bun" ]; then \
+		echo "bun already installed"; \
+	else \
+		echo "Installing bun from bun.sh..."; \
+		curl -fsSL https://bun.sh/install | BUN_INSTALL="$(HOME)/.bun" PATH="$(HOME)/.bun/bin:$$PATH" bash; \
+	fi
+endif
+
+# fly (Fly.io CLI, flyctl) — https://fly.io/docs/flyctl/
+# macOS: Homebrew core formula flyctl (Brewfile; provides both fly and flyctl).
+# Linux: official installer with FLYCTL_INSTALL=~/.local, so flyctl and its
+# fly symlink land in ~/.local/bin (same convention as nvim/herdr). Piped
+# installs are non-interactive and leave shell rc files alone.
+set-fly:
+ifeq ($(OS),Darwin)
+	@echo "On macOS, fly is installed via brew (flyctl)"
+else
+	@if command -v fly > /dev/null 2>&1 || [ -x "$(HOME)/.local/bin/fly" ]; then \
+		echo "fly already installed"; \
+	else \
+		echo "Installing flyctl from fly.io..."; \
+		curl -fsSL https://fly.io/install.sh | FLYCTL_INSTALL="$(HOME)/.local" sh; \
 	fi
 endif
 
@@ -557,7 +617,7 @@ check-plugins:
 		if [ ! -f "$$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo rust-analyzer direnv; do \
+		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo rust-analyzer direnv setsid bun fly cargo-watch; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -574,7 +634,7 @@ check-plugins:
 		done; \
 		if [ $$sh_found -eq 1 ]; then echo "  OK: zsh-syntax-highlighting"; \
 		else echo "  MISSING: zsh-syntax-highlighting"; missing=1; fi; \
-		for cmd in starship zoxide ls dircolors uv ruff rustc cargo rust-analyzer direnv; do \
+		for cmd in starship zoxide ls dircolors uv ruff rustc cargo rust-analyzer direnv setsid bun fly cargo-watch; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -625,7 +685,7 @@ status:
 	done
 	@echo ""
 	@echo "=== Tool versions ==="
-	@for cmd in zsh nvim starship zoxide uv ruff git node herdr omp; do \
+	@for cmd in zsh nvim starship zoxide uv ruff git node bun fly herdr omp; do \
 		if command -v $$cmd > /dev/null 2>&1; then \
 			ver=$$($$cmd --version 2>/dev/null | head -1); \
 			echo "  $$cmd: $$ver"; \
@@ -665,13 +725,14 @@ unlink:
 	@rm -f $(HOME)/.local/bin/tmux-layout
 	@rm -f $(HOME)/.local/bin/tmux-rebalance-column
 	@rm -f $(HOME)/.local/bin/tmux-set-column-widths
+	@[ -L $(HOME)/.local/bin/setsid ] && rm -f $(HOME)/.local/bin/setsid || true
 	@rm -f $(HOME)/.config/nvim
 	@rm -f $(HOME)/.config/ghostty/config
 	@rm -f $(HOME)/.config/herdr/config.toml
 	@rm -f $(HOME)/.config/puppeteer.json
 
 .PHONY: install install-nvchad install-others set-rust set-rust-tools update-rust \
-        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-herdr set-omp set-omp-skills omp set-nvim-tools \
+        set-xcode set-brew set-packages set-apt-packages set-pacman-packages set-neovim set-lazygit set-starship set-zoxide set-uv set-ruff set-golang set-go-packages set-nvchad-deps set-hunk set-herdr set-setsid set-bun set-fly set-omp set-omp-skills omp set-nvim-tools \
         link link-zshrc link-starship link-dircolors link-gitconfig link-tmux link-tmux-layout link-tmux-rebalance link-tmux-colwidths link-nvim link-ghostty link-herdr \
         set-default-shell check-plugins \
         set-tmux-plugins tmux-restart tmux-reload status update \

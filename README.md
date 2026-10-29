@@ -33,10 +33,10 @@ of `pacman`.
 
 ### macOS
 Installs Xcode CLI tools, Homebrew, packages from the Brewfile (including
-[herdr](https://herdr.dev)), and the Rust toolchain.
+[herdr](https://herdr.dev), bun, flyctl and util-linux for `setsid`), and the Rust toolchain.
 
 ### Ubuntu
-Installs packages via apt, then Starship, zoxide, uv, ruff, herdr, and the Rust toolchain via their official install scripts.
+Installs packages via apt, then Starship, zoxide, uv, ruff, herdr, bun, fly, and the Rust toolchain via their official install scripts.
 
 ### Omarchy (Arch Linux)
 Installs packages via `pacman` from `packages/pacman-packages.txt`. Arch's
@@ -44,7 +44,7 @@ official repos already carry recent Starship, zoxide, uv, ruff, lazygit and
 Go, so those come from pacman rather than the curl installers used on Ubuntu.
 Neovim is still pinned to v0.11.6 via tarball (the repo build rolls forward to
 0.12+, which breaks nvim-treesitter master), Rust still comes from rustup, and
-herdr (not in the Arch repos) comes from its official `install.sh`.
+herdr, bun and fly (not in the Arch repos) come from their official install scripts.
 `make set-pacman-packages` runs a full `pacman -Syu` first to avoid Arch
 partial-upgrade breakage.
 
@@ -76,9 +76,12 @@ the `offline-devkit` Claude Code skill.
 | `make set-default-shell`   | yes   | yes    | yes     | Set zsh as default shell             |
 | `make check-plugins`       | yes   | yes    | yes     | Verify plugins/tools are installed   |
 | `make set-rust`            | yes   | yes    | yes     | Install Rust toolchain (rustup + rustfmt, clippy, rust-analyzer, rust-src) |
-| `make set-rust-tools`      | yes   | yes    | yes     | Install cargo tools via cargo-binstall (nextest, bacon, cargo-edit, cargo-expand, cargo-audit) |
+| `make set-rust-tools`      | yes   | yes    | yes     | Install cargo tools via cargo-binstall (nextest, bacon, cargo-watch, cargo-edit, cargo-expand, cargo-audit) |
 | `make update-rust`         | yes   | yes    | yes     | `rustup update stable` + bump the cargo tools |
 | `make set-herdr`           | brew  | yes    | yes     | Install [herdr](https://herdr.dev) agent multiplexer (part of `make install`) |
+| `make set-setsid`          | yes   | yes    | yes     | macOS: link util-linux `setsid` into `~/.local/bin`; Linux: verify it exists |
+| `make set-bun`             | brew  | yes    | yes     | Install [bun](https://bun.sh) (Linux → `~/.bun/bin`) |
+| `make set-fly`             | brew  | yes    | yes     | Install [flyctl](https://fly.io/docs/flyctl/) `fly` (Linux → `~/.local/bin`) |
 | `make clean`               | yes   | --     | --      | Remove unlisted Homebrew packages    |
 | `make unlink`              | yes   | yes    | yes     | Remove all symlinks                  |
 

@@ -32,8 +32,11 @@ uname -s
 | `make set-apt-packages` | -- | yes | Install apt packages from apt-packages.txt |
 | `make check-plugins` | yes | yes | Verify all plugins/tools are installed |
 | `make set-rust` | yes | yes | Install Rust toolchain (rustup + rustfmt, clippy, rust-analyzer, rust-src) |
-| `make set-rust-tools` | yes | yes | Install cargo tools via cargo-binstall (nextest, bacon, cargo-edit, cargo-expand, cargo-audit) |
+| `make set-rust-tools` | yes | yes | Install cargo tools via cargo-binstall (nextest, bacon, cargo-watch, cargo-edit, cargo-expand, cargo-audit) |
 | `make update-rust` | yes | yes | Update stable toolchain + cargo tools |
+| `make set-setsid` | yes | yes | macOS: link util-linux `setsid` into `~/.local/bin`; Linux: verify it exists |
+| `make set-bun` | brew | yes | Install bun (Linux: bun.sh installer → `~/.bun/bin`) |
+| `make set-fly` | brew | yes | Install flyctl `fly` (Linux: fly.io installer → `~/.local/bin`) |
 | `make install-others` | yes | -- | Install extra Homebrew packages (BrewFile.others) |
 | `make clean` | yes | -- | Remove unlisted Homebrew packages |
 | `make unlink` | yes | yes | Remove all symlinks |

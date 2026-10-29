@@ -43,6 +43,12 @@ lua51
 zsh-autosuggestions
 zsh-syntax-highlighting
 
+# setsid — part of util-linux (normally preinstalled; listed explicitly)
+util-linux
+
+# bun / fly — not in the distro repos; installed via the set-bun / set-fly
+# targets (bun.sh → ~/.bun/bin, fly.io/install.sh → ~/.local/bin).
+
 # herdr (agent multiplexer) — not in the Arch repos; installed via the set-herdr
 # target (curl https://herdr.dev/install.sh → ~/.local/bin/herdr).
 

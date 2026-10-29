@@ -44,6 +44,10 @@ command -v go > /dev/null && export PATH="$PATH:$(go env GOPATH)/bin"
 # Rust
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
+# Bun — Linux installer puts bun here; `bun add -g` globals land here on every OS
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+
 # Editor — used by git, and by omp for its external editor ($VISUAL then $EDITOR)
 export EDITOR='nvim'
 export VISUAL='nvim'
