@@ -36,7 +36,7 @@ uname -s
 | `make update-rust` | yes | yes | Update stable toolchain + cargo tools |
 | `make set-setsid` | yes | yes | macOS: link util-linux `setsid` into `~/.local/bin`; Linux: verify it exists |
 | `make set-bun` | brew | yes | Install bun (Linux: bun.sh installer → `~/.bun/bin`) |
-| `make set-fly` | brew | yes | Install flyctl `fly` (Linux: fly.io installer → `~/.local/bin`) |
+| `make set-fly` | yes | yes | Download Concourse `fly` from `$CONCOURSE_URL` → `~/.local/bin` (skipped if unset) |
 | `make install-others` | yes | -- | Install extra Homebrew packages (BrewFile.others) |
 | `make clean` | yes | -- | Remove unlisted Homebrew packages |
 | `make unlink` | yes | yes | Remove all symlinks |

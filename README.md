@@ -33,10 +33,10 @@ of `pacman`.
 
 ### macOS
 Installs Xcode CLI tools, Homebrew, packages from the Brewfile (including
-[herdr](https://herdr.dev), bun, flyctl and util-linux for `setsid`), and the Rust toolchain.
+[herdr](https://herdr.dev), bun and util-linux for `setsid`), and the Rust toolchain.
 
 ### Ubuntu
-Installs packages via apt, then Starship, zoxide, uv, ruff, herdr, bun, fly, and the Rust toolchain via their official install scripts.
+Installs packages via apt, then Starship, zoxide, uv, ruff, herdr, bun, and the Rust toolchain via their official install scripts.
 
 ### Omarchy (Arch Linux)
 Installs packages via `pacman` from `packages/pacman-packages.txt`. Arch's
@@ -44,7 +44,11 @@ official repos already carry recent Starship, zoxide, uv, ruff, lazygit and
 Go, so those come from pacman rather than the curl installers used on Ubuntu.
 Neovim is still pinned to v0.11.6 via tarball (the repo build rolls forward to
 0.12+, which breaks nvim-treesitter master), Rust still comes from rustup, and
-herdr, bun and fly (not in the Arch repos) come from their official install scripts.
+herdr and bun (not in the Arch repos) come from their official install scripts.
+
+Concourse `fly` must match the server version, so `make set-fly` downloads it
+from the server. Set `export CONCOURSE_URL=https://<concourse>` in
+`~/.zshrc.local` first; without it the step is skipped.
 `make set-pacman-packages` runs a full `pacman -Syu` first to avoid Arch
 partial-upgrade breakage.
 
@@ -81,7 +85,7 @@ the `offline-devkit` Claude Code skill.
 | `make set-herdr`           | brew  | yes    | yes     | Install [herdr](https://herdr.dev) agent multiplexer (part of `make install`) |
 | `make set-setsid`          | yes   | yes    | yes     | macOS: link util-linux `setsid` into `~/.local/bin`; Linux: verify it exists |
 | `make set-bun`             | brew  | yes    | yes     | Install [bun](https://bun.sh) (Linux → `~/.bun/bin`) |
-| `make set-fly`             | brew  | yes    | yes     | Install [flyctl](https://fly.io/docs/flyctl/) `fly` (Linux → `~/.local/bin`) |
+| `make set-fly`             | yes   | yes    | yes     | Download Concourse `fly` from `$CONCOURSE_URL` → `~/.local/bin` (skipped if unset) |
 | `make clean`               | yes   | --     | --      | Remove unlisted Homebrew packages    |
 | `make unlink`              | yes   | yes    | yes     | Remove all symlinks                  |
 

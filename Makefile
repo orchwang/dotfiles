@@ -397,22 +397,33 @@ else
 	fi
 endif
 
-# fly (Fly.io CLI, flyctl) — https://fly.io/docs/flyctl/
-# macOS: Homebrew core formula flyctl (Brewfile; provides both fly and flyctl).
-# Linux: official installer with FLYCTL_INSTALL=~/.local, so flyctl and its
-# fly symlink land in ~/.local/bin (same convention as nvim/herdr). Piped
-# installs are non-interactive and leave shell rc files alone.
+# fly (Concourse CI CLI) — must match the server's Concourse version, so it is
+# downloaded from the server itself (/api/v1/cli), not from brew/GitHub.
+# Set CONCOURSE_URL (e.g. in ~/.zshrc.local, it's internal/machine-local);
+# without it this target only prints a reminder so `make install` continues.
+# Lands in ~/.local/bin/fly, which precedes Homebrew on PATH. Afterwards keep
+# it in step with server upgrades via: fly -t <target> sync
 set-fly:
-ifeq ($(OS),Darwin)
-	@echo "On macOS, fly is installed via brew (flyctl)"
-else
-	@if command -v fly > /dev/null 2>&1 || [ -x "$(HOME)/.local/bin/fly" ]; then \
-		echo "fly already installed"; \
-	else \
-		echo "Installing flyctl from fly.io..."; \
-		curl -fsSL https://fly.io/install.sh | FLYCTL_INSTALL="$(HOME)/.local" sh; \
-	fi
-endif
+	@$(BREW_ENV) if [ -z "$$CONCOURSE_URL" ]; then \
+		echo "Skipping fly: set CONCOURSE_URL (e.g. in ~/.zshrc.local), then run: make set-fly"; \
+		exit 0; \
+	fi; \
+	case "$$(uname -s)" in Darwin) PLATFORM=darwin ;; *) PLATFORM=linux ;; esac; \
+	case "$$(uname -m)" in \
+		x86_64|amd64) ARCH=amd64 ;; \
+		aarch64|arm64) ARCH=arm64 ;; \
+		*) echo "Unsupported architecture: $$(uname -m)"; exit 1 ;; \
+	esac; \
+	if [ "$$PLATFORM" = darwin ] && brew list --formula flyctl > /dev/null 2>&1; then \
+		echo "  WARN: brew flyctl (Fly.io) also provides 'fly'; remove it: brew uninstall flyctl"; \
+	fi; \
+	URL="$${CONCOURSE_URL%/}/api/v1/cli?arch=$$ARCH&platform=$$PLATFORM"; \
+	echo "Downloading Concourse fly from $$URL..."; \
+	mkdir -p $(HOME)/.local/bin; \
+	curl -fLo $(HOME)/.local/bin/fly.tmp "$$URL" \
+		&& install -m 755 $(HOME)/.local/bin/fly.tmp $(HOME)/.local/bin/fly; \
+	rc=$$?; rm -f $(HOME)/.local/bin/fly.tmp; [ $$rc -eq 0 ] || exit $$rc; \
+	echo "fly $$($(HOME)/.local/bin/fly --version) installed to ~/.local/bin/fly"
 
 # omp (Oh My Pi) coding agent — https://github.com/can1357/oh-my-pi
 # Standalone: NOT part of `make install`. Install it on demand with
@@ -617,7 +628,7 @@ check-plugins:
 		if [ ! -f "$$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then \
 			echo "  MISSING: zsh-syntax-highlighting"; missing=1; \
 		else echo "  OK: zsh-syntax-highlighting"; fi; \
-		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo rust-analyzer direnv setsid bun fly cargo-watch; do \
+		for cmd in starship zoxide gls gdircolors uv ruff rustc cargo rust-analyzer direnv setsid bun cargo-watch; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \
@@ -634,7 +645,7 @@ check-plugins:
 		done; \
 		if [ $$sh_found -eq 1 ]; then echo "  OK: zsh-syntax-highlighting"; \
 		else echo "  MISSING: zsh-syntax-highlighting"; missing=1; fi; \
-		for cmd in starship zoxide ls dircolors uv ruff rustc cargo rust-analyzer direnv setsid bun fly cargo-watch; do \
+		for cmd in starship zoxide ls dircolors uv ruff rustc cargo rust-analyzer direnv setsid bun cargo-watch; do \
 			if command -v $$cmd > /dev/null 2>&1; then echo "  OK: $$cmd"; \
 			else echo "  MISSING: $$cmd"; missing=1; fi; \
 		done; \

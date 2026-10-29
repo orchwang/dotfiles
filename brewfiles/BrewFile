@@ -37,7 +37,8 @@ brew "go"
 brew "node"
 brew "yarn"
 brew "bun"
-brew "flyctl"  # provides `fly` and `flyctl`
+# fly (Concourse CLI) — downloaded from the Concourse server via `make set-fly`
+# (needs CONCOURSE_URL); not brew, which is Fly.io flyctl / a mismatched version.
 brew "uv"
 brew "ruff"
 # omp (Oh My Pi coding agent) — intentionally NOT here so `make install` stays
